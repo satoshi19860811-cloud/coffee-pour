@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+  <title>4投式 抽出ガイド</title>
+  <!-- ホーム画面に追加した場合のフルスクリーン設定（任意） -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="抽出ガイド">
+  <meta name="theme-color" content="#A2845E">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Crect width='180' height='180' rx='40' fill='%23A2845E'/%3E%3Ctext x='90' y='118' font-size='90' text-anchor='middle' fill='white'%3E%E2%98%95%3C/text%3E%3C/svg%3E">
+
+  <style>
+    :root {
+      --coffee: #A2845E;        /* SwiftUI Color.brown 相当 */
+      --pour:   #FF9500;        /* SwiftUI Color.orange 相当 */
+      --bg:        #ffffff;
+      --card:      #f5f5f5;
+      --divider:   #d4d4d4;
+      --text:      #000000;
+      --subtext:   #737373;
+      --btn:       #e5e5e5;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:      #000000;
+        --card:    #171717;
+        --divider: #404040;
+        --text:    #ffffff;
+        --subtext: #a3a3a3;
+        --btn:     #262626;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html, body { -webkit-tap-highlight-color: transparent; margin: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      overscroll-behavior-y: contain;
+    }
+
+    .wrap {
+      max-width: 28rem;
+      margin: 0 auto;
+      padding: 24px 20px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    h1 { font-size: 28px; font-weight: 800; margin: 0; }
+
+    /* 入力カード */
+    .card {
+      background: var(--card);
+      border-radius: 24px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .label { font-size: 16px; font-weight: 700; color: var(--subtext); margin: 0 0 8px; }
+    .divider { height: 1px; background: var(--divider); }
+
+    .beans-row { display: flex; align-items: baseline; gap: 8px; }
+    #beans {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      padding: 0;
+    }
+    /* 数値スピナー除去 */
+    #beans { -moz-appearance: textfield; }
+    #beans::-webkit-outer-spin-button,
+    #beans::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .unit { font-size: 24px; font-weight: 700; color: var(--subtext); }
+
+    .ratio-row { display: flex; align-items: center; justify-content: space-between; }
+    #ratioLabel { font-size: 48px; font-weight: 800; letter-spacing: -0.02em; }
+    .steppers { display: flex; align-items: center; gap: 12px; -webkit-user-select: none; user-select: none; }
+    .stepper {
+      width: 56px; height: 56px;
+      border-radius: 999px;
+      border: none;
+      background: var(--btn);
+      color: var(--text);
+      font-size: 30px; font-weight: 700;
+      font-family: inherit;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform .08s ease;
+      cursor: pointer;
+    }
+    .stepper:active { transform: scale(0.9); }
+
+    /* 総湯量 */
+    .total {
+      background: var(--coffee);
+      border-radius: 24px;
+      padding: 24px 0;
+      text-align: center;
+      color: #fff;
+    }
+    .total .cap { font-size: 16px; font-weight: 700; opacity: .85; margin: 0; }
+    #total { font-size: 48px; font-weight: 800; letter-spacing: -0.02em; margin: 4px 0 0; }
+
+    /* 注湯リスト */
+    .steps { display: flex; flex-direction: column; gap: 12px; }
+    .step {
+      display: flex; align-items: center; gap: 16px;
+      background: var(--card);
+      border-radius: 16px;
+      padding: 16px;
+    }
+    .badge {
+      width: 44px; height: 44px; flex-shrink: 0;
+      border-radius: 999px;
+      color: #fff;
+      font-size: 20px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-mid { min-width: 0; }
+    .step-time { font-size: 18px; font-weight: 800; white-space: nowrap; margin: 0; }
+    .step-method { font-size: 14px; font-weight: 700; margin: 2px 0 0; }
+    .step-right { margin-left: auto; text-align: right; }
+    .step-amount { font-size: 20px; font-weight: 800; white-space: nowrap; margin: 0; }
+    .step-cum { font-size: 14px; font-weight: 700; color: var(--subtext); white-space: nowrap; margin: 2px 0 0; }
+
+    .accent-coffee { color: var(--coffee); }
+    .accent-pour   { color: var(--pour); }
+    .bg-coffee { background: var(--coffee); }
+    .bg-pour   { background: var(--pour); }
+
+    /* ===== 今後実装予定（プレースホルダー） ===== */
+    .future {
+      opacity: .5;                 /* 全体をグレーアウトして「まだ使えない」感を出す */
+      pointer-events: none;        /* タップしても何も起きない */
+      -webkit-user-select: none; user-select: none;
+    }
+    .future-head {
+      display: flex; align-items: center; gap: 10px;
+      margin: 0 0 12px 2px;
+    }
+    .future-title { font-size: 16px; font-weight: 800; color: var(--subtext); }
+    .future-tag {
+      font-size: 11px; font-weight: 800; letter-spacing: .04em;
+      color: var(--subtext);
+      border: 1px solid var(--divider);
+      border-radius: 999px;
+      padding: 3px 10px;
+    }
+    .future-card {
+      background: var(--card);
+      border: 1px dashed var(--divider);   /* 破線で「仮置き」を明示 */
+      border-radius: 20px;
+      padding: 4px 16px;
+    }
+    .future-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 0;
+    }
+    .future-label { font-size: 16px; font-weight: 700; }
+    .future-field { font-size: 15px; font-weight: 700; color: var(--subtext); }
+    .future-divider { height: 1px; background: var(--divider); }
+    .future-note {
+      font-size: 12px; font-weight: 600; color: var(--subtext);
+      margin: 10px 2px 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <h1>4投式 抽出ガイド</h1>
+
+    <!-- 入力カード -->
+    <div class="card">
+      <div>
+        <p class="label">コーヒー豆の量</p>
+        <div class="beans-row">
+          <input id="beans" type="text" inputmode="decimal" value="13">
+          <span class="unit">g</span>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div>
+        <p class="label">抽出レシオ（豆1gに対する湯量）</p>
+        <div class="ratio-row">
+          <span id="ratioLabel">16.5</span>
+          <div class="steppers">
+            <button id="ratioMinus" class="stepper" aria-label="減らす">−</button>
+            <button id="ratioPlus" class="stepper" aria-label="増やす">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 総湯量 -->
+    <div class="total">
+      <p class="cap">目標の総湯量</p>
+      <p id="total">214.5 g</p>
+    </div>
+
+    <!-- 注湯リスト -->
+    <div id="steps" class="steps"></div>
+
+    <!-- ▼ 今後実装予定（枠だけのプレースホルダー：操作不可） -->
+    <section class="future" aria-label="今後実装予定">
+      <div class="future-head">
+        <span class="future-title">今後実装予定</span>
+        <span class="future-tag">準備中</span>
+      </div>
+
+      <div class="future-card">
+        <div class="future-row">
+          <span class="future-label">グラインダー</span>
+          <span class="future-field">未設定 ▾</span>
+        </div>
+        <div class="future-divider"></div>
+        <div class="future-row">
+          <span class="future-label">クリック数</span>
+          <span class="future-field">— clicks</span>
+        </div>
+        <div class="future-divider"></div>
+        <div class="future-row">
+          <span class="future-label">豆の情報</span>
+          <span class="future-field">未入力</span>
+        </div>
+      </div>
+      <p class="future-note">※ これらの項目は今後のアップデートで入力できるようになります</p>
+    </section>
+  </div>
+
+  <script>
+    // ===== 計算ロジック（Swift版を完全再現）=====
+    const r1 = x => Math.round(x * 10) / 10;   // 小数点第1位で四捨五入
+    const f1 = x => x.toFixed(1);
+
+    const STEP_DEFS = [
+      { id: 1, time: '0\'00" 〜 0\'15"', method: 'サークルプア', center: false },
+      { id: 2, time: '0\'35" 〜 0\'50"', method: 'サークルプア', center: false },
+      { id: 3, time: '1\'10" 〜 1\'25"', method: 'サークルプア', center: false },
+      { id: 4, time: '1\'45" 〜 2\'10"', method: 'センタープア', center: true  },
+    ];
+
+    let ratio = 16.5;
+
+    const beansEl = document.getElementById('beans');
+    const ratioEl = document.getElementById('ratioLabel');
+    const totalEl = document.getElementById('total');
+    const stepsEl = document.getElementById('steps');
+
+    function render() {
+      const beans = parseFloat((beansEl.value || '').replace(',', '.')) || 0;
+      const total = r1(beans * ratio);
+
+      const p1 = r1(total * 0.167);
+      const p2 = r1(total * 0.167);
+      const p3 = r1(total * 0.200);
+      const p4 = r1(total - (p1 + p2 + p3));   // 残り全部＝端数ズレ防止
+
+      const amounts = [p1, p2, p3, p4];
+      const cums    = [r1(p1), r1(p1 + p2), r1(p1 + p2 + p3), total];
+
+      ratioEl.textContent = f1(ratio);
+      totalEl.textContent = f1(total) + ' g';
+
+      stepsEl.innerHTML = STEP_DEFS.map((s, i) => {
+        const accent  = s.center ? 'accent-pour' : 'accent-coffee';
+        const badgeBg = s.center ? 'bg-pour' : 'bg-coffee';
+        return `
+          <div class="step">
+            <div class="badge ${badgeBg}">${s.id}</div>
+            <div class="step-mid">
+              <p class="step-time">${s.time}</p>
+              <p class="step-method ${accent}">${s.method}</p>
+            </div>
+            <div class="step-right">
+              <p class="step-amount">+${f1(amounts[i])} g</p>
+              <p class="step-cum">累計 ${f1(cums[i])} g</p>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    // ===== イベント =====
+    beansEl.addEventListener('input', render);
+    document.getElementById('ratioPlus').addEventListener('click', () => {
+      ratio = Math.min(30, r1(ratio + 0.1)); render();
+    });
+    document.getElementById('ratioMinus').addEventListener('click', () => {
+      ratio = Math.max(1, r1(ratio - 0.1)); render();
+    });
+
+    render();
+  </script>
+
+  <script>
+    // オフライン動作用：Service Worker登録（https配信時のみ有効）
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
