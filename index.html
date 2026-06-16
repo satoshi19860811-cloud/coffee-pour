@@ -212,6 +212,53 @@
       border-color: var(--c, var(--coffee));
       color: #fff;
     }
+
+    /* 実測 */
+    .actual-card { background: var(--card); border-radius: 20px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .actual-row { display: flex; align-items: center; gap: 10px; }
+    .actual-label { font-size: 14px; font-weight: 800; width: 46px; flex-shrink: 0; }
+    .actual-input {
+      flex: 1; min-width: 0;
+      background: var(--bg); border: 1px solid var(--divider);
+      border-radius: 10px; padding: 10px 12px;
+      font-size: 16px; font-weight: 700; color: var(--text);
+      font-family: inherit; outline: none;
+    }
+    .actual-input::placeholder { color: var(--subtext); font-weight: 500; }
+    .actual-unit { font-size: 14px; font-weight: 700; color: var(--subtext); }
+    .actual-pct { width: 60px; text-align: right; font-size: 14px; font-weight: 800; color: var(--coffee); flex-shrink: 0; }
+    .actual-total { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--divider); padding-top: 10px; font-size: 15px; font-weight: 800; }
+    .actual-total .at-val { color: var(--coffee); }
+
+    /* 記録ボタン */
+    .save-btn {
+      width: 100%; background: var(--coffee); color: #fff;
+      border: none; border-radius: 16px; padding: 16px;
+      font-size: 17px; font-weight: 800; font-family: inherit;
+      cursor: pointer; transition: transform .08s ease, background .2s ease;
+    }
+    .save-btn:active { transform: scale(0.98); }
+    .save-btn.saved { background: #3aa35a; }
+
+    /* 抽出ログ */
+    .logs { display: flex; flex-direction: column; gap: 10px; }
+    .logs-empty { font-size: 13px; font-weight: 600; color: var(--subtext); margin: 0; }
+    .log { background: var(--card); border-radius: 16px; padding: 14px; }
+    .log-head { display: flex; justify-content: space-between; align-items: center; }
+    .log-loc { font-size: 12px; font-weight: 800; color: #fff; background: var(--coffee); padding: 2px 10px; border-radius: 999px; }
+    .log-date { font-size: 12px; font-weight: 700; color: var(--subtext); }
+    .log-bean { font-size: 16px; font-weight: 800; margin: 8px 0 2px; }
+    .log-meta { font-size: 13px; font-weight: 600; color: var(--subtext); margin: 0; }
+    .log-flavors { font-size: 12px; font-weight: 700; color: var(--coffee); margin: 6px 0 0; }
+    .log-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .log-btn {
+      flex: 1; background: var(--bg); border: 1px solid var(--divider);
+      border-radius: 10px; padding: 9px; font-size: 13px; font-weight: 700;
+      color: var(--text); font-family: inherit; cursor: pointer;
+      transition: transform .08s ease;
+    }
+    .log-btn:active { transform: scale(0.97); }
+    .log-btn.del { color: #c0392b; }
   </style>
 </head>
 
@@ -250,7 +297,42 @@
     <!-- 注湯リスト -->
     <div id="steps" class="steps"></div>
 
-    <!-- ▼ 抽出メモ（任意入力：今回は保存なし、次回ローカル保存予定） -->
+    <!-- ▼ 実測（実際に注いだ量を入力 → 割合を表示） -->
+    <section aria-label="実測">
+      <p class="form-head">実測（実際に注いだ量）</p>
+      <div class="actual-card">
+        <div class="actual-row">
+          <span class="actual-label">1投目</span>
+          <input id="actual1" class="actual-input" type="text" inputmode="decimal">
+          <span class="actual-unit">g</span>
+          <span id="actualPct1" class="actual-pct">—</span>
+        </div>
+        <div class="actual-row">
+          <span class="actual-label">2投目</span>
+          <input id="actual2" class="actual-input" type="text" inputmode="decimal">
+          <span class="actual-unit">g</span>
+          <span id="actualPct2" class="actual-pct">—</span>
+        </div>
+        <div class="actual-row">
+          <span class="actual-label">3投目</span>
+          <input id="actual3" class="actual-input" type="text" inputmode="decimal">
+          <span class="actual-unit">g</span>
+          <span id="actualPct3" class="actual-pct">—</span>
+        </div>
+        <div class="actual-row">
+          <span class="actual-label">4投目</span>
+          <input id="actual4" class="actual-input" type="text" inputmode="decimal">
+          <span class="actual-unit">g</span>
+          <span id="actualPct4" class="actual-pct">—</span>
+        </div>
+        <div class="actual-total">
+          <span>実測 総湯量</span>
+          <span id="actualTotal" class="at-val">— g</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ▼ 抽出メモ（任意入力） -->
     <section aria-label="抽出メモ">
       <p class="form-head">抽出メモ（任意）</p>
       <div class="form">
@@ -319,6 +401,14 @@
 
       </div>
     </section>
+
+    <button id="saveBtn" class="save-btn">この抽出を記録</button>
+
+    <!-- ▼ 抽出ログ（端末内・localStorage） -->
+    <section aria-label="抽出ログ">
+      <p class="form-head">抽出ログ（端末内） <span id="logCount" class="flavor-count"></span></p>
+      <div id="logs" class="logs"></div>
+    </section>
   </div>
 
   <script>
@@ -334,6 +424,7 @@
     ];
 
     let ratio = 16.5;
+    let targetPours = [0, 0, 0, 0];   // 目標の各投量（実測欄プレースホルダー・保存時の既定値に使用）
 
     const beansEl = document.getElementById('beans');
     const ratioEl = document.getElementById('ratioLabel');
@@ -372,7 +463,38 @@
             </div>
           </div>`;
       }).join('');
+
+      // 実測欄のプレースホルダーを目標値で更新し、割合を再計算
+      targetPours = amounts.slice();
+      for (let i = 0; i < 4; i++) {
+        document.getElementById('actual' + (i + 1)).placeholder = f1(amounts[i]);
+      }
+      updateActual();
     }
+
+    // ===== 実測（実際に注いだ量）→ 割合・実測総湯量 =====
+    const actualEls = [1, 2, 3, 4].map(i => document.getElementById('actual' + i));
+    const actualPctEls = [1, 2, 3, 4].map(i => document.getElementById('actualPct' + i));
+    const actualTotalEl = document.getElementById('actualTotal');
+
+    // 入力があればその値、空欄なら目標値を採用
+    function actualValues() {
+      return actualEls.map((el, i) => {
+        const v = parseFloat((el.value || '').replace(',', '.'));
+        return isNaN(v) ? targetPours[i] : r1(v);
+      });
+    }
+
+    function updateActual() {
+      const vals = actualValues();
+      const sum = r1(vals.reduce((a, b) => a + b, 0));
+      vals.forEach((v, i) => {
+        actualPctEls[i].textContent = sum > 0 ? f1(v / sum * 100) + '%' : '—';
+      });
+      actualTotalEl.textContent = sum > 0 ? f1(sum) + ' g' : '— g';
+    }
+
+    actualEls.forEach(el => el.addEventListener('input', updateActual));
 
     // ===== イベント =====
     beansEl.addEventListener('input', render);
@@ -445,7 +567,148 @@
     }
     buildFlavors();
 
+    // ===== 抽出ログ（localStorage） =====
+    const LOG_KEY = 'brewLogs_v1';
+    const saveBtn = document.getElementById('saveBtn');
+    const logsEl = document.getElementById('logs');
+    const logCountEl = document.getElementById('logCount');
+
+    function loadLogs() {
+      try { return JSON.parse(localStorage.getItem(LOG_KEY)) || []; }
+      catch (e) { return []; }
+    }
+    function storeLogs(arr) {
+      try { localStorage.setItem(LOG_KEY, JSON.stringify(arr)); } catch (e) {}
+    }
+    function pad2(n) { return String(n).padStart(2, '0'); }
+    function fmtDate(d) {
+      return `${d.getFullYear()}/${pad2(d.getMonth() + 1)}/${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+    }
+    function numOrNull(id) {
+      const v = parseFloat((document.getElementById(id).value || '').replace(',', '.'));
+      return isNaN(v) ? null : v;
+    }
+
+    // 1件分の保存オブジェクト（Notion転記用の確定フォーマット）
+    function collectEntry() {
+      const beans = parseFloat((beansEl.value || '').replace(',', '.')) || 0;
+      const total = r1(beans * ratio);
+      const pours = actualValues();
+      const actualTotal = r1(pours.reduce((a, b) => a + b, 0));
+      const method = brewMethodEl.value === '__other'
+        ? (brewMethodOtherEl.value.trim() || 'その他')
+        : brewMethodEl.value;
+      const now = new Date();
+      return {
+        id: now.getTime(),
+        brewedAt: now.toISOString(),
+        brewedAtLabel: fmtDate(now),
+        location: document.getElementById('location').value,
+        beanName: document.getElementById('beanName').value.trim(),
+        beansAmount: beans,
+        ratio: ratio,
+        totalWater: total,
+        actualTotal: actualTotal,
+        waterTemp: numOrNull('waterTemp'),
+        grinder: document.getElementById('grinder').value,
+        clicks: numOrNull('clicks'),
+        dripper: document.getElementById('dripper').value,
+        brewMethod: method,
+        pour1: pours[0], pour2: pours[1], pour3: pours[2], pour4: pours[3],
+        flavorTags: [...selectedFlavors],
+        memo: document.getElementById('memo').value.trim()
+      };
+    }
+
+    // Notion転記用のコピーテキスト
+    function logToText(e) {
+      const lines = [
+        `日時: ${e.brewedAtLabel}`,
+        `場所: ${e.location}`,
+        `豆: ${e.beanName || ''}`,
+        `豆量: ${e.beansAmount}g / レシオ: ${e.ratio} / 目標総湯量: ${e.totalWater}g / 実測総湯量: ${e.actualTotal}g`,
+        `グラインダー: ${e.grinder}${e.clicks != null ? ` (${e.clicks} clicks)` : ''}`,
+        `ドリッパー: ${e.dripper}`,
+        `メソッド: ${e.brewMethod}`,
+        e.waterTemp != null ? `湯温: ${e.waterTemp}℃` : null,
+        `注湯: 1) ${e.pour1}g  2) ${e.pour2}g  3) ${e.pour3}g  4) ${e.pour4}g`,
+        e.flavorTags.length ? `Flavor: ${e.flavorTags.join(', ')}` : null,
+        e.memo ? `メモ: ${e.memo}` : null
+      ];
+      return lines.filter(Boolean).join('\n');
+    }
+
+    function copyText(text, onDone) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(onDone, () => fallbackCopy(text, onDone));
+      } else {
+        fallbackCopy(text, onDone);
+      }
+    }
+    function fallbackCopy(text, onDone) {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      if (onDone) onDone();
+    }
+
+    function renderLogs() {
+      const logs = loadLogs();
+      logCountEl.textContent = logs.length ? `（${logs.length}）` : '';
+      if (!logs.length) {
+        logsEl.innerHTML = '<p class="logs-empty">まだ記録がありません。淹れ終わったら「記録」を押してください。</p>';
+        return;
+      }
+      logsEl.innerHTML = logs.map(e => `
+        <div class="log">
+          <div class="log-head">
+            <span class="log-loc">${e.location}</span>
+            <span class="log-date">${e.brewedAtLabel}</span>
+          </div>
+          <p class="log-bean">${e.beanName || '（豆 未入力）'}</p>
+          <p class="log-meta">${e.beansAmount}g ・ レシオ ${e.ratio} ・ 実測 ${e.actualTotal}g</p>
+          ${e.flavorTags.length ? `<p class="log-flavors">${e.flavorTags.join(', ')}</p>` : ''}
+          <div class="log-actions">
+            <button class="log-btn" data-copy="${e.id}">コピー</button>
+            <button class="log-btn del" data-del="${e.id}">削除</button>
+          </div>
+        </div>`).join('');
+
+      logsEl.querySelectorAll('[data-copy]').forEach(b => {
+        b.addEventListener('click', () => {
+          const e = loadLogs().find(x => x.id === Number(b.dataset.copy));
+          if (!e) return;
+          copyText(logToText(e), () => {
+            const orig = b.textContent;
+            b.textContent = 'コピー済';
+            setTimeout(() => { b.textContent = orig; }, 1200);
+          });
+        });
+      });
+      logsEl.querySelectorAll('[data-del]').forEach(b => {
+        b.addEventListener('click', () => {
+          if (!confirm('このログを削除しますか？')) return;
+          storeLogs(loadLogs().filter(x => x.id !== Number(b.dataset.del)));
+          renderLogs();
+        });
+      });
+    }
+
+    saveBtn.addEventListener('click', () => {
+      const logs = loadLogs();
+      logs.unshift(collectEntry());
+      storeLogs(logs);
+      renderLogs();
+      const orig = saveBtn.textContent;
+      saveBtn.textContent = '記録しました ✓';
+      saveBtn.classList.add('saved');
+      setTimeout(() => { saveBtn.textContent = orig; saveBtn.classList.remove('saved'); }, 1400);
+    });
+
     render();
+    renderLogs();
   </script>
 
   <script>
