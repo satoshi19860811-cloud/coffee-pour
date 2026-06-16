@@ -59,6 +59,18 @@
 
     h1 { font-size: 24px; font-weight: 800; margin: 0; }
 
+    /* タブ（抽出 / ログ） */
+    .tabs { display: flex; gap: 6px; background: var(--card); padding: 4px; border-radius: 14px; }
+    .tab-btn {
+      flex: 1; border: none; background: transparent; color: var(--subtext);
+      font-family: inherit; font-size: 15px; font-weight: 800;
+      padding: 10px; border-radius: 10px; cursor: pointer;
+      transition: background .15s ease, color .15s ease;
+    }
+    .tab-btn.active { background: var(--bg); color: var(--text); }
+    .tab-pane { display: flex; flex-direction: column; gap: 16px; }
+    .tab-pane[hidden] { display: none; }
+
     /* 入力カード */
     .card {
       background: var(--card);
@@ -226,7 +238,7 @@
     }
     .actual-input::placeholder { color: var(--subtext); font-weight: 500; }
     .actual-unit { font-size: 14px; font-weight: 700; color: var(--subtext); }
-    .actual-pct { width: 60px; text-align: right; font-size: 14px; font-weight: 800; color: var(--coffee); flex-shrink: 0; }
+    .actual-pct { width: 92px; text-align: right; font-size: 13px; font-weight: 800; color: var(--coffee); flex-shrink: 0; }
     .actual-total { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--divider); padding-top: 10px; font-size: 15px; font-weight: 800; }
     .actual-total .at-val { color: var(--coffee); }
 
@@ -266,6 +278,13 @@
   <div class="wrap">
     <h1>Coffee Brew Guide</h1>
 
+    <div class="tabs" role="tablist">
+      <button id="tabBtnBrew" class="tab-btn active" type="button">抽出</button>
+      <button id="tabBtnLog" class="tab-btn" type="button">ログ <span id="tabLogCount"></span></button>
+    </div>
+
+    <div id="tab-brew" class="tab-pane">
+
     <!-- 入力カード -->
     <div class="card">
       <div class="field-grid">
@@ -297,33 +316,33 @@
     <!-- 注湯リスト -->
     <div id="steps" class="steps"></div>
 
-    <!-- ▼ 実測（実際に注いだ量を入力 → 割合を表示） -->
+    <!-- ▼ 実測（各投の到達Total湯量を入力 → 各投の増分・割合を表示） -->
     <section aria-label="実測">
-      <p class="form-head">実測（実際に注いだ量）</p>
+      <p class="form-head">実測（各投の到達Total湯量）</p>
       <div class="actual-card">
         <div class="actual-row">
           <span class="actual-label">1投目</span>
-          <input id="actual1" class="actual-input" type="text" inputmode="decimal">
+          <input id="cum1" class="actual-input" type="text" inputmode="decimal">
           <span class="actual-unit">g</span>
-          <span id="actualPct1" class="actual-pct">—</span>
+          <span id="inc1" class="actual-pct">—</span>
         </div>
         <div class="actual-row">
           <span class="actual-label">2投目</span>
-          <input id="actual2" class="actual-input" type="text" inputmode="decimal">
+          <input id="cum2" class="actual-input" type="text" inputmode="decimal">
           <span class="actual-unit">g</span>
-          <span id="actualPct2" class="actual-pct">—</span>
+          <span id="inc2" class="actual-pct">—</span>
         </div>
         <div class="actual-row">
           <span class="actual-label">3投目</span>
-          <input id="actual3" class="actual-input" type="text" inputmode="decimal">
+          <input id="cum3" class="actual-input" type="text" inputmode="decimal">
           <span class="actual-unit">g</span>
-          <span id="actualPct3" class="actual-pct">—</span>
+          <span id="inc3" class="actual-pct">—</span>
         </div>
         <div class="actual-row">
           <span class="actual-label">4投目</span>
-          <input id="actual4" class="actual-input" type="text" inputmode="decimal">
+          <input id="cum4" class="actual-input" type="text" inputmode="decimal">
           <span class="actual-unit">g</span>
-          <span id="actualPct4" class="actual-pct">—</span>
+          <span id="inc4" class="actual-pct">—</span>
         </div>
         <div class="actual-total">
           <span>実測 総湯量</span>
@@ -404,11 +423,15 @@
 
     <button id="saveBtn" class="save-btn">この抽出を記録</button>
 
+    </div><!-- /tab-brew -->
+
+    <div id="tab-log" class="tab-pane" hidden>
     <!-- ▼ 抽出ログ（端末内・localStorage） -->
     <section aria-label="抽出ログ">
       <p class="form-head">抽出ログ（端末内） <span id="logCount" class="flavor-count"></span></p>
       <div id="logs" class="logs"></div>
     </section>
+    </div><!-- /tab-log -->
   </div>
 
   <script>
@@ -464,45 +487,59 @@
           </div>`;
       }).join('');
 
-      // 実測欄のプレースホルダーを目標値で更新し、割合を再計算
+      // 実測欄（到達Total）のプレースホルダーを目標累計で更新し、再計算
       targetPours = amounts.slice();
+      let s = 0;
       for (let i = 0; i < 4; i++) {
-        document.getElementById('actual' + (i + 1)).placeholder = f1(amounts[i]);
+        s = r1(s + amounts[i]);
+        document.getElementById('cum' + (i + 1)).placeholder = f1(s);
       }
       updateActual();
     }
 
-    // ===== 実測（実際に注いだ量）→ 割合・実測総湯量 =====
-    const actualEls = [1, 2, 3, 4].map(i => document.getElementById('actual' + i));
-    const actualPctEls = [1, 2, 3, 4].map(i => document.getElementById('actualPct' + i));
+    // ===== 実測（各投の到達Total湯量）→ 各投の増分・割合・実測総湯量 =====
+    const cumEls = [1, 2, 3, 4].map(i => document.getElementById('cum' + i));
+    const incEls = [1, 2, 3, 4].map(i => document.getElementById('inc' + i));
     const actualTotalEl = document.getElementById('actualTotal');
 
-    // 入力があればその値、空欄なら目標値を採用
-    function actualValues() {
-      return actualEls.map((el, i) => {
+    // 目標の累計湯量
+    function targetCumulative() {
+      const c = []; let s = 0;
+      for (let i = 0; i < 4; i++) { s = r1(s + targetPours[i]); c.push(s); }
+      return c;
+    }
+    // 入力があればその累計、空欄なら目標累計
+    function cumValues() {
+      const tc = targetCumulative();
+      return cumEls.map((el, i) => {
         const v = parseFloat((el.value || '').replace(',', '.'));
-        return isNaN(v) ? targetPours[i] : r1(v);
+        return isNaN(v) ? tc[i] : r1(v);
       });
+    }
+    // 累計 → 各投の増分（その投で実際に注いだ量）
+    function incrementsOf(cums) {
+      return cums.map((c, i) => r1(c - (i === 0 ? 0 : cums[i - 1])));
     }
 
     function updateActual() {
-      const vals = actualValues();
-      const sum = r1(vals.reduce((a, b) => a + b, 0));
-      vals.forEach((v, i) => {
-        actualPctEls[i].textContent = sum > 0 ? f1(v / sum * 100) + '%' : '—';
+      const cums = cumValues();
+      const incs = incrementsOf(cums);
+      const total = cums[3];
+      incEls.forEach((el, i) => {
+        el.textContent = total > 0 ? `+${f1(incs[i])}g (${Math.round(incs[i] / total * 100)}%)` : '—';
       });
-      actualTotalEl.textContent = sum > 0 ? f1(sum) + ' g' : '— g';
+      actualTotalEl.textContent = total > 0 ? f1(total) + ' g' : '— g';
     }
 
-    actualEls.forEach(el => el.addEventListener('input', updateActual));
+    cumEls.forEach(el => el.addEventListener('input', () => { updateActual(); saveDraft(); }));
 
     // ===== イベント =====
     beansEl.addEventListener('input', render);
     document.getElementById('ratioPlus').addEventListener('click', () => {
-      ratio = Math.min(30, r1(ratio + 0.1)); render();
+      ratio = Math.min(30, r1(ratio + 0.1)); render(); saveDraft();
     });
     document.getElementById('ratioMinus').addEventListener('click', () => {
-      ratio = Math.max(1, r1(ratio - 0.1)); render();
+      ratio = Math.max(1, r1(ratio - 0.1)); render(); saveDraft();
     });
 
     // 抽出メソッドで「その他」を選んだら自由入力欄を表示
@@ -552,7 +589,7 @@
         <div class="flavor-group" style="--c:${g.color}">
           <p class="flavor-cat">${cat}</p>
           <div class="chips">
-            ${g.items.map(it => `<button type="button" class="chip" data-flavor="${it.n}"><span class="chip-emoji">${it.e}</span>${it.n}</button>`).join('')}
+            ${g.items.map(it => `<button type="button" class="chip${selectedFlavors.has(it.n) ? ' on' : ''}" data-flavor="${it.n}"><span class="chip-emoji">${it.e}</span>${it.n}</button>`).join('')}
           </div>
         </div>`).join('');
 
@@ -562,10 +599,63 @@
           if (selectedFlavors.has(f)) { selectedFlavors.delete(f); btn.classList.remove('on'); }
           else { selectedFlavors.add(f); btn.classList.add('on'); }
           flavorCountEl.textContent = selectedFlavors.size ? `（${selectedFlavors.size}）` : '';
+          saveDraft();
         });
       });
+
+      flavorCountEl.textContent = selectedFlavors.size ? `（${selectedFlavors.size}）` : '';
     }
+    // ===== 下書きの保存・復元（入力を漏れなく端末に残す） =====
+    const DRAFT_KEY = 'brewDraft_v1';
+    const gid = id => document.getElementById(id);
+    function saveDraft() {
+      const d = {
+        beans: beansEl.value, ratio,
+        cum: cumEls.map(el => el.value),
+        location: gid('location').value, waterTemp: gid('waterTemp').value,
+        grinder: gid('grinder').value, clicks: gid('clicks').value,
+        dripper: gid('dripper').value, brewMethod: brewMethodEl.value,
+        brewMethodOther: brewMethodOtherEl.value, beanName: gid('beanName').value,
+        memo: gid('memo').value, flavors: [...selectedFlavors]
+      };
+      try { localStorage.setItem(DRAFT_KEY, JSON.stringify(d)); } catch (e) {}
+    }
+    function setVal(id, v) { if (v != null && v !== '') gid(id).value = v; }
+    function restoreDraft() {
+      let d; try { d = JSON.parse(localStorage.getItem(DRAFT_KEY)); } catch (e) {}
+      if (!d) return;
+      if (d.beans != null && d.beans !== '') beansEl.value = d.beans;
+      if (typeof d.ratio === 'number') ratio = d.ratio;
+      if (Array.isArray(d.cum)) d.cum.forEach((v, i) => { if (cumEls[i] && v) cumEls[i].value = v; });
+      setVal('location', d.location); setVal('waterTemp', d.waterTemp);
+      setVal('grinder', d.grinder); setVal('clicks', d.clicks);
+      setVal('dripper', d.dripper);
+      if (d.brewMethod) brewMethodEl.value = d.brewMethod;
+      if (d.brewMethodOther) brewMethodOtherEl.value = d.brewMethodOther;
+      if (brewMethodEl.value === '__other') brewMethodOtherEl.style.display = 'block';
+      setVal('beanName', d.beanName); setVal('memo', d.memo);
+      if (Array.isArray(d.flavors)) d.flavors.forEach(f => selectedFlavors.add(f));
+    }
+    restoreDraft();
+
     buildFlavors();
+
+    // 入力の変化を漏れなく下書き保存（input/change はバブリングする）
+    const wrapEl = document.querySelector('.wrap');
+    wrapEl.addEventListener('input', saveDraft);
+    wrapEl.addEventListener('change', saveDraft);
+
+    // ===== タブ切り替え（抽出 / ログ） =====
+    const tabBtnBrew = gid('tabBtnBrew'), tabBtnLog = gid('tabBtnLog');
+    const tabBrew = gid('tab-brew'), tabLog = gid('tab-log');
+    function showTab(which) {
+      const brew = which === 'brew';
+      tabBrew.hidden = !brew; tabLog.hidden = brew;
+      tabBtnBrew.classList.toggle('active', brew);
+      tabBtnLog.classList.toggle('active', !brew);
+    }
+    tabBtnBrew.addEventListener('click', () => showTab('brew'));
+    tabBtnLog.addEventListener('click', () => showTab('log'));
 
     // ===== 抽出ログ（localStorage） =====
     const LOG_KEY = 'brewLogs_v1';
@@ -593,8 +683,9 @@
     function collectEntry() {
       const beans = parseFloat((beansEl.value || '').replace(',', '.')) || 0;
       const total = r1(beans * ratio);
-      const pours = actualValues();
-      const actualTotal = r1(pours.reduce((a, b) => a + b, 0));
+      const cums = cumValues();
+      const pours = incrementsOf(cums);
+      const actualTotal = cums[3];
       const method = brewMethodEl.value === '__other'
         ? (brewMethodOtherEl.value.trim() || 'その他')
         : brewMethodEl.value;
@@ -615,6 +706,7 @@
         dripper: document.getElementById('dripper').value,
         brewMethod: method,
         pour1: pours[0], pour2: pours[1], pour3: pours[2], pour4: pours[3],
+        cum1: cums[0], cum2: cums[1], cum3: cums[2], cum4: cums[3],
         flavorTags: [...selectedFlavors],
         memo: document.getElementById('memo').value.trim()
       };
@@ -631,7 +723,8 @@
         `ドリッパー: ${e.dripper}`,
         `メソッド: ${e.brewMethod}`,
         e.waterTemp != null ? `湯温: ${e.waterTemp}℃` : null,
-        `注湯: 1) ${e.pour1}g  2) ${e.pour2}g  3) ${e.pour3}g  4) ${e.pour4}g`,
+        `各投: 1)${e.pour1}g 2)${e.pour2}g 3)${e.pour3}g 4)${e.pour4}g`,
+        e.cum4 != null ? `累計Total: ${e.cum1} / ${e.cum2} / ${e.cum3} / ${e.cum4} g` : null,
         e.flavorTags.length ? `Flavor: ${e.flavorTags.join(', ')}` : null,
         e.memo ? `メモ: ${e.memo}` : null
       ];
@@ -657,6 +750,8 @@
     function renderLogs() {
       const logs = loadLogs();
       logCountEl.textContent = logs.length ? `（${logs.length}）` : '';
+      const tlc = document.getElementById('tabLogCount');
+      if (tlc) tlc.textContent = logs.length ? `(${logs.length})` : '';
       if (!logs.length) {
         logsEl.innerHTML = '<p class="logs-empty">まだ記録がありません。淹れ終わったら「記録」を押してください。</p>';
         return;
