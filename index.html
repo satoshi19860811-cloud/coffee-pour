@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
-  <title>4投式 抽出ガイド</title>
+  <title>Coffee Brew Guide</title>
   <!-- ホーム画面に追加した場合のフルスクリーン設定（任意） -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="抽出ガイド">
+  <meta name="apple-mobile-web-app-title" content="Brew Guide">
   <meta name="theme-color" content="#A2845E">
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Crect width='180' height='180' rx='40' fill='%23A2845E'/%3E%3Ctext x='90' y='118' font-size='90' text-anchor='middle' fill='white'%3E%E2%98%95%3C/text%3E%3C/svg%3E">
 
@@ -51,35 +51,39 @@
     .wrap {
       max-width: 28rem;
       margin: 0 auto;
-      padding: 24px 20px 40px;
+      padding: 18px 20px 40px;
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 16px;
     }
 
-    h1 { font-size: 28px; font-weight: 800; margin: 0; }
+    h1 { font-size: 24px; font-weight: 800; margin: 0; }
 
     /* 入力カード */
     .card {
       background: var(--card);
-      border-radius: 24px;
-      padding: 20px;
+      border-radius: 20px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 16px;
     }
-    .label { font-size: 16px; font-weight: 700; color: var(--subtext); margin: 0 0 8px; }
+    .label { font-size: 13px; font-weight: 700; color: var(--subtext); margin: 0 0 6px; }
     .divider { height: 1px; background: var(--divider); }
 
-    .beans-row { display: flex; align-items: baseline; gap: 8px; }
+    /* 豆の量・レシオ 横並び */
+    .field-grid { display: flex; gap: 14px; }
+    .field-grid > .inp { flex: 1; min-width: 0; }
+
+    .beans-row { display: flex; align-items: baseline; gap: 6px; }
     #beans {
-      width: 100%;
+      flex: 1; min-width: 0; width: auto;
       background: transparent;
       border: none;
       outline: none;
       color: var(--text);
       font-family: inherit;
-      font-size: 48px;
+      font-size: 32px;
       font-weight: 800;
       letter-spacing: -0.02em;
       padding: 0;
@@ -88,56 +92,57 @@
     #beans { -moz-appearance: textfield; }
     #beans::-webkit-outer-spin-button,
     #beans::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-    .unit { font-size: 24px; font-weight: 700; color: var(--subtext); }
+    .unit { font-size: 18px; font-weight: 700; color: var(--subtext); }
 
-    .ratio-row { display: flex; align-items: center; justify-content: space-between; }
-    #ratioLabel { font-size: 48px; font-weight: 800; letter-spacing: -0.02em; }
-    .steppers { display: flex; align-items: center; gap: 12px; -webkit-user-select: none; user-select: none; }
+    .ratio-row { display: flex; align-items: center; gap: 4px; }
+    #ratioLabel { flex: 1; min-width: 0; text-align: center; font-size: 30px; font-weight: 800; letter-spacing: -0.02em; }
     .stepper {
-      width: 56px; height: 56px;
+      width: 38px; height: 38px; flex-shrink: 0;
       border-radius: 999px;
       border: none;
       background: var(--btn);
       color: var(--text);
-      font-size: 30px; font-weight: 700;
+      font-size: 24px; font-weight: 700;
       font-family: inherit;
       display: flex; align-items: center; justify-content: center;
       transition: transform .08s ease;
       cursor: pointer;
+      -webkit-user-select: none; user-select: none;
     }
     .stepper:active { transform: scale(0.9); }
 
     /* 総湯量 */
     .total {
       background: var(--coffee);
-      border-radius: 24px;
-      padding: 24px 0;
+      border-radius: 20px;
+      padding: 16px 0;
       text-align: center;
       color: #fff;
     }
-    .total .cap { font-size: 16px; font-weight: 700; opacity: .85; margin: 0; }
-    #total { font-size: 48px; font-weight: 800; letter-spacing: -0.02em; margin: 4px 0 0; }
+    .total .cap { font-size: 14px; font-weight: 700; opacity: .85; margin: 0; }
+    #total { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; margin: 2px 0 0; }
 
     /* 注湯リスト */
-    .steps { display: flex; flex-direction: column; gap: 12px; }
+    .steps { display: flex; flex-direction: column; gap: 10px; }
     .step {
-      display: flex; align-items: center; gap: 16px;
+      display: flex; align-items: center; gap: 14px;
       background: var(--card);
       border-radius: 16px;
-      padding: 16px;
+      padding: 13px 14px;
     }
     .badge {
-      width: 44px; height: 44px; flex-shrink: 0;
+      width: 40px; height: 40px; flex-shrink: 0;
       border-radius: 999px;
       color: #fff;
-      font-size: 20px; font-weight: 800;
+      font-size: 18px; font-weight: 800;
       display: flex; align-items: center; justify-content: center;
     }
     .step-mid { min-width: 0; }
-    .step-time { font-size: 18px; font-weight: 800; white-space: nowrap; margin: 0; }
-    .step-method { font-size: 14px; font-weight: 700; margin: 2px 0 0; }
+    .step-time { font-size: 16px; font-weight: 800; white-space: nowrap; margin: 0; }
+    .step-method { font-size: 13px; font-weight: 700; margin: 2px 0 0; }
     .step-right { margin-left: auto; text-align: right; }
     .step-amount { font-size: 20px; font-weight: 800; white-space: nowrap; margin: 0; }
+    .step-pct { font-size: 14px; font-weight: 700; color: var(--subtext); }
     .step-cum { font-size: 14px; font-weight: 700; color: var(--subtext); white-space: nowrap; margin: 2px 0 0; }
 
     .accent-coffee { color: var(--coffee); }
@@ -145,66 +150,91 @@
     .bg-coffee { background: var(--coffee); }
     .bg-pour   { background: var(--pour); }
 
-    /* ===== 今後実装予定（プレースホルダー） ===== */
-    .future {
-      opacity: .5;                 /* 全体をグレーアウトして「まだ使えない」感を出す */
-      pointer-events: none;        /* タップしても何も起きない */
-      -webkit-user-select: none; user-select: none;
-    }
-    .future-head {
-      display: flex; align-items: center; gap: 10px;
-      margin: 0 0 12px 2px;
-    }
-    .future-title { font-size: 16px; font-weight: 800; color: var(--subtext); }
-    .future-tag {
-      font-size: 11px; font-weight: 800; letter-spacing: .04em;
-      color: var(--subtext);
-      border: 1px solid var(--divider);
-      border-radius: 999px;
-      padding: 3px 10px;
-    }
-    .future-card {
+    /* ===== 抽出メモ（任意入力フォーム） ===== */
+    .form-head { font-size: 16px; font-weight: 800; color: var(--subtext); margin: 0 0 12px 2px; }
+    .form {
       background: var(--card);
-      border: 1px dashed var(--divider);   /* 破線で「仮置き」を明示 */
       border-radius: 20px;
-      padding: 4px 16px;
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
-    .future-row {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 0;
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field > label { font-size: 13px; font-weight: 700; color: var(--subtext); }
+    .row2 { display: flex; gap: 12px; }
+    .row2 > .field { flex: 1; min-width: 0; }
+
+    .control {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--divider);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 16px;          /* iOSのフォーカス時ズーム防止のため16px */
+      font-weight: 600;
+      color: var(--text);
+      font-family: inherit;
+      outline: none;
     }
-    .future-label { font-size: 16px; font-weight: 700; }
-    .future-field { font-size: 15px; font-weight: 700; color: var(--subtext); }
-    .future-divider { height: 1px; background: var(--divider); }
-    .future-note {
-      font-size: 12px; font-weight: 600; color: var(--subtext);
-      margin: 10px 2px 0;
+    select.control { -webkit-appearance: none; appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, var(--subtext) 50%),
+                        linear-gradient(135deg, var(--subtext) 50%, transparent 50%);
+      background-position: calc(100% - 18px) 20px, calc(100% - 13px) 20px;
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+      padding-right: 34px;
+    }
+    textarea.control { resize: vertical; min-height: 64px; }
+    .control::placeholder { color: var(--subtext); font-weight: 500; }
+
+    /* フレーバーチップ */
+    .flavor-count { font-weight: 800; color: var(--coffee); }
+    .flavor-wrap { display: flex; flex-direction: column; gap: 10px; }
+    .flavor-cat { font-size: 12px; font-weight: 800; color: var(--c, var(--subtext)); margin: 6px 0 0; letter-spacing: .02em; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      font-size: 14px; font-weight: 600;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1.5px solid var(--c, var(--divider));
+      background: var(--bg);
+      color: var(--text);
+      font-family: inherit;
+      cursor: pointer;
+      -webkit-user-select: none; user-select: none;
+      transition: background .12s ease, border-color .12s ease, color .12s ease, transform .08s ease;
+    }
+    .chip-emoji { margin-right: 5px; }
+    .chip:active { transform: scale(0.94); }
+    .chip.on {
+      background: var(--c, var(--coffee));
+      border-color: var(--c, var(--coffee));
+      color: #fff;
     }
   </style>
 </head>
 
 <body>
   <div class="wrap">
-    <h1>4投式 抽出ガイド</h1>
+    <h1>Coffee Brew Guide</h1>
 
     <!-- 入力カード -->
     <div class="card">
-      <div>
-        <p class="label">コーヒー豆の量</p>
-        <div class="beans-row">
-          <input id="beans" type="text" inputmode="decimal" value="13">
-          <span class="unit">g</span>
+      <div class="field-grid">
+        <div class="inp">
+          <p class="label">豆の量</p>
+          <div class="beans-row">
+            <input id="beans" type="text" inputmode="decimal" value="13">
+            <span class="unit">g</span>
+          </div>
         </div>
-      </div>
 
-      <div class="divider"></div>
-
-      <div>
-        <p class="label">抽出レシオ（豆1gに対する湯量）</p>
-        <div class="ratio-row">
-          <span id="ratioLabel">16.5</span>
-          <div class="steppers">
+        <div class="inp">
+          <p class="label">レシオ</p>
+          <div class="ratio-row">
             <button id="ratioMinus" class="stepper" aria-label="減らす">−</button>
+            <span id="ratioLabel">16.5</span>
             <button id="ratioPlus" class="stepper" aria-label="増やす">+</button>
           </div>
         </div>
@@ -220,30 +250,74 @@
     <!-- 注湯リスト -->
     <div id="steps" class="steps"></div>
 
-    <!-- ▼ 今後実装予定（枠だけのプレースホルダー：操作不可） -->
-    <section class="future" aria-label="今後実装予定">
-      <div class="future-head">
-        <span class="future-title">今後実装予定</span>
-        <span class="future-tag">準備中</span>
-      </div>
+    <!-- ▼ 抽出メモ（任意入力：今回は保存なし、次回ローカル保存予定） -->
+    <section aria-label="抽出メモ">
+      <p class="form-head">抽出メモ（任意）</p>
+      <div class="form">
 
-      <div class="future-card">
-        <div class="future-row">
-          <span class="future-label">グラインダー</span>
-          <span class="future-field">未設定 ▾</span>
+        <div class="row2">
+          <div class="field">
+            <label for="location">場所</label>
+            <select id="location" class="control">
+              <option>Office</option>
+              <option>Home</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="waterTemp">湯温（℃）</label>
+            <input id="waterTemp" class="control" type="text" inputmode="numeric" placeholder="90">
+          </div>
         </div>
-        <div class="future-divider"></div>
-        <div class="future-row">
-          <span class="future-label">クリック数</span>
-          <span class="future-field">— clicks</span>
+
+        <div class="row2">
+          <div class="field">
+            <label for="grinder">グラインダー</label>
+            <select id="grinder" class="control">
+              <option>NANO3</option>
+              <option>C2 MAX</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="clicks">クリック数</label>
+            <input id="clicks" class="control" type="text" inputmode="numeric" placeholder="22">
+          </div>
         </div>
-        <div class="future-divider"></div>
-        <div class="future-row">
-          <span class="future-label">豆の情報</span>
-          <span class="future-field">未入力</span>
+
+        <div class="field">
+          <label for="dripper">ドリッパー</label>
+          <select id="dripper" class="control">
+            <option>HARIO V60</option>
+            <option>HARIO V60 neo</option>
+            <option>HARIO switch</option>
+          </select>
         </div>
+
+        <div class="field">
+          <label for="brewMethod">抽出メソッド</label>
+          <select id="brewMethod" class="control">
+            <option>THE COFFEE SHOP</option>
+            <option value="__other">その他（自由入力）</option>
+          </select>
+          <input id="brewMethodOther" class="control" type="text"
+                 placeholder="メソッド名を入力" style="display:none; margin-top:8px;">
+        </div>
+
+        <div class="field">
+          <label for="beanName">豆（銘柄）</label>
+          <input id="beanName" class="control" type="text" placeholder="例: GLOMBIA Gilbert">
+        </div>
+
+        <div class="field">
+          <label>Flavor Profile <span id="flavorCount" class="flavor-count"></span></label>
+          <div id="flavors" class="flavor-wrap"></div>
+        </div>
+
+        <div class="field">
+          <label for="memo">メモ</label>
+          <textarea id="memo" class="control" placeholder="例: だいぶ水っぽい。"></textarea>
+        </div>
+
       </div>
-      <p class="future-note">※ これらの項目は今後のアップデートで入力できるようになります</p>
     </section>
   </div>
 
@@ -284,6 +358,7 @@
       stepsEl.innerHTML = STEP_DEFS.map((s, i) => {
         const accent  = s.center ? 'accent-pour' : 'accent-coffee';
         const badgeBg = s.center ? 'bg-pour' : 'bg-coffee';
+        const pct = total > 0 ? f1(amounts[i] / total * 100) : '0.0';
         return `
           <div class="step">
             <div class="badge ${badgeBg}">${s.id}</div>
@@ -292,7 +367,7 @@
               <p class="step-method ${accent}">${s.method}</p>
             </div>
             <div class="step-right">
-              <p class="step-amount">+${f1(amounts[i])} g</p>
+              <p class="step-amount">${f1(amounts[i])}g <span class="step-pct">(${pct}%)</span></p>
               <p class="step-cum">累計 ${f1(cums[i])} g</p>
             </div>
           </div>`;
@@ -307,6 +382,68 @@
     document.getElementById('ratioMinus').addEventListener('click', () => {
       ratio = Math.max(1, r1(ratio - 0.1)); render();
     });
+
+    // 抽出メソッドで「その他」を選んだら自由入力欄を表示
+    const brewMethodEl = document.getElementById('brewMethod');
+    const brewMethodOtherEl = document.getElementById('brewMethodOther');
+    brewMethodEl.addEventListener('change', () => {
+      const isOther = brewMethodEl.value === '__other';
+      brewMethodOtherEl.style.display = isOther ? 'block' : 'none';
+      if (isOther) brewMethodOtherEl.focus();
+    });
+
+    // ===== Flavor Profile（Level B・複数選択・SCAホイール配色） =====
+    // 各カテゴリ: color = SCAフレーバーホイール準拠の色, items = {n:名称, e:食材絵文字}
+    const FLAVORS = {
+      'Floral':             { color: '#D5589A', items: [
+        { n: 'Floral', e: '🌸' }, { n: 'Jasmine', e: '🌼' }, { n: 'Black Tea', e: '🍵' } ] },
+      'Fruity':             { color: '#D33E4C', items: [
+        { n: 'Berry', e: '🫐' }, { n: 'Blueberry', e: '🫐' }, { n: 'Strawberry', e: '🍓' },
+        { n: 'Raisin', e: '🍇' }, { n: 'Citrus', e: '🍊' }, { n: 'Lemon', e: '🍋' },
+        { n: 'Orange', e: '🍊' }, { n: 'Apple', e: '🍎' }, { n: 'Cherry', e: '🍒' }, { n: 'Peach', e: '🍑' } ] },
+      'Sour / Fermented':   { color: '#B7A416', items: [
+        { n: 'Sour', e: '🍋' }, { n: 'Citric Acid', e: '🍊' }, { n: 'Malic Acid', e: '🍏' },
+        { n: 'Winey', e: '🍷' }, { n: 'Fermented', e: '🍶' } ] },
+      'Green / Vegetative': { color: '#4C9A52', items: [
+        { n: 'Fresh', e: '🌿' }, { n: 'Herb-like', e: '🍃' }, { n: 'Vegetative', e: '🥬' }, { n: 'Hay-like', e: '🌾' } ] },
+      'Roasted':            { color: '#8E4234', items: [
+        { n: 'Smoky', e: '🔥' }, { n: 'Brown/Roast', e: '🍞' }, { n: 'Cereal', e: '🥣' },
+        { n: 'Malt', e: '🍺' }, { n: 'Tobacco', e: '🍂' } ] },
+      'Spices':             { color: '#C25336', items: [
+        { n: 'Cinnamon', e: '🫚' }, { n: 'Clove', e: '🌰' }, { n: 'Nutmeg', e: '🌰' }, { n: 'Pepper', e: '🌶️' } ] },
+      'Nutty / Cocoa':      { color: '#8C5A3C', items: [
+        { n: 'Nutty', e: '🥜' }, { n: 'Almond', e: '🥜' }, { n: 'Hazelnut', e: '🌰' },
+        { n: 'Chocolate', e: '🍫' }, { n: 'Dark Chocolate', e: '🍫' } ] },
+      'Sweet':              { color: '#E08A2A', items: [
+        { n: 'Caramelized', e: '🍮' }, { n: 'Honey', e: '🍯' }, { n: 'Maple Syrup', e: '🍁' },
+        { n: 'Brown Sugar', e: '🍪' }, { n: 'Vanilla', e: '🍦' }, { n: 'Sweet Aromatics', e: '🍬' } ] },
+      'Other':              { color: '#8A8F94', items: [
+        { n: 'Papery', e: '📄' }, { n: 'Woody', e: '🪵' }, { n: 'Medicinal', e: '💊' } ] },
+    };
+
+    const selectedFlavors = new Set();   // 将来の保存・Notion送信で flavorTags として使用
+    const flavorsEl = document.getElementById('flavors');
+    const flavorCountEl = document.getElementById('flavorCount');
+
+    function buildFlavors() {
+      flavorsEl.innerHTML = Object.entries(FLAVORS).map(([cat, g]) => `
+        <div class="flavor-group" style="--c:${g.color}">
+          <p class="flavor-cat">${cat}</p>
+          <div class="chips">
+            ${g.items.map(it => `<button type="button" class="chip" data-flavor="${it.n}"><span class="chip-emoji">${it.e}</span>${it.n}</button>`).join('')}
+          </div>
+        </div>`).join('');
+
+      flavorsEl.querySelectorAll('.chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const f = btn.dataset.flavor;
+          if (selectedFlavors.has(f)) { selectedFlavors.delete(f); btn.classList.remove('on'); }
+          else { selectedFlavors.add(f); btn.classList.add('on'); }
+          flavorCountEl.textContent = selectedFlavors.size ? `（${selectedFlavors.size}）` : '';
+        });
+      });
+    }
+    buildFlavors();
 
     render();
   </script>
