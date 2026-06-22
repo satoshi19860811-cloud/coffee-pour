@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
   <title>Coffee Brew Guide</title>
-  <!-- ホーム画面に追加した場合のフルスクリーン設定（任意） -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,140 +14,55 @@
 
   <style>
     :root {
-      --coffee: #A2845E;        /* SwiftUI Color.brown 相当 */
-      --pour:   #FF9500;        /* SwiftUI Color.orange 相当 */
-      --bg:        #ffffff;
-      --card:      #f5f5f5;
-      --divider:   #d4d4d4;
-      --text:      #000000;
-      --subtext:   #737373;
-      --btn:       #e5e5e5;
+      --coffee: #A2845E; --pour: #FF9500;
+      --bg: #ffffff; --card: #f5f5f5; --divider: #d4d4d4;
+      --text: #000000; --subtext: #737373; --btn: #e5e5e5;
     }
     @media (prefers-color-scheme: dark) {
-      :root {
-        --bg:      #000000;
-        --card:    #171717;
-        --divider: #404040;
-        --text:    #ffffff;
-        --subtext: #a3a3a3;
-        --btn:     #262626;
-      }
+      :root { --bg:#000; --card:#171717; --divider:#404040; --text:#fff; --subtext:#a3a3a3; --btn:#262626; }
     }
-
     * { box-sizing: border-box; }
     html, body { -webkit-tap-highlight-color: transparent; margin: 0; }
-
     body {
       font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      padding-top: env(safe-area-inset-top);
-      padding-bottom: env(safe-area-inset-bottom);
+      background: var(--bg); color: var(--text); min-height: 100vh;
+      padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
       overscroll-behavior-y: contain;
     }
-
-    .wrap {
-      max-width: 28rem;
-      margin: 0 auto;
-      padding: 18px 20px 40px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
+    .wrap { max-width: 28rem; margin: 0 auto; padding: 18px 20px 40px; display: flex; flex-direction: column; gap: 16px; }
     h1 { font-size: 24px; font-weight: 800; margin: 0; }
 
-    /* タブ（抽出 / ログ） */
+    /* タブ */
     .tabs { display: flex; gap: 6px; background: var(--card); padding: 4px; border-radius: 14px; }
-    .tab-btn {
-      flex: 1; border: none; background: transparent; color: var(--subtext);
-      font-family: inherit; font-size: 15px; font-weight: 800;
-      padding: 10px; border-radius: 10px; cursor: pointer;
-      transition: background .15s ease, color .15s ease;
-    }
+    .tab-btn { flex: 1; border: none; background: transparent; color: var(--subtext); font-family: inherit; font-size: 15px; font-weight: 800; padding: 10px; border-radius: 10px; cursor: pointer; transition: background .15s, color .15s; }
     .tab-btn.active { background: var(--bg); color: var(--text); }
     .tab-pane { display: flex; flex-direction: column; gap: 16px; }
     .tab-pane[hidden] { display: none; }
 
     /* 入力カード */
-    .card {
-      background: var(--card);
-      border-radius: 20px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
+    .card { background: var(--card); border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
     .label { font-size: 13px; font-weight: 700; color: var(--subtext); margin: 0 0 6px; }
-    .divider { height: 1px; background: var(--divider); }
-
-    /* 豆の量・レシオ 横並び */
     .field-grid { display: flex; gap: 14px; }
     .field-grid > .inp { flex: 1; min-width: 0; }
-
     .beans-row { display: flex; align-items: baseline; gap: 6px; }
-    #beans {
-      flex: 1; min-width: 0; width: auto;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: var(--text);
-      font-family: inherit;
-      font-size: 32px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      padding: 0;
-    }
-    /* 数値スピナー除去 */
+    #beans { flex: 1; min-width: 0; width: auto; background: transparent; border: none; outline: none; color: var(--text); font-family: inherit; font-size: 32px; font-weight: 800; letter-spacing: -.02em; padding: 0; }
     #beans { -moz-appearance: textfield; }
-    #beans::-webkit-outer-spin-button,
-    #beans::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    #beans::-webkit-outer-spin-button, #beans::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     .unit { font-size: 18px; font-weight: 700; color: var(--subtext); }
-
     .ratio-row { display: flex; align-items: center; gap: 4px; }
-    #ratioLabel { flex: 1; min-width: 0; text-align: center; font-size: 30px; font-weight: 800; letter-spacing: -0.02em; }
-    .stepper {
-      width: 38px; height: 38px; flex-shrink: 0;
-      border-radius: 999px;
-      border: none;
-      background: var(--btn);
-      color: var(--text);
-      font-size: 24px; font-weight: 700;
-      font-family: inherit;
-      display: flex; align-items: center; justify-content: center;
-      transition: transform .08s ease;
-      cursor: pointer;
-      -webkit-user-select: none; user-select: none;
-    }
-    .stepper:active { transform: scale(0.9); }
+    #ratioLabel { flex: 1; min-width: 0; text-align: center; font-size: 30px; font-weight: 800; letter-spacing: -.02em; }
+    .stepper { width: 38px; height: 38px; flex-shrink: 0; border-radius: 999px; border: none; background: var(--btn); color: var(--text); font-size: 24px; font-weight: 700; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: transform .08s; cursor: pointer; -webkit-user-select: none; user-select: none; }
+    .stepper:active { transform: scale(.9); }
 
     /* 総湯量 */
-    .total {
-      background: var(--coffee);
-      border-radius: 20px;
-      padding: 16px 0;
-      text-align: center;
-      color: #fff;
-    }
+    .total { background: var(--coffee); border-radius: 20px; padding: 16px 0; text-align: center; color: #fff; }
     .total .cap { font-size: 14px; font-weight: 700; opacity: .85; margin: 0; }
-    #total { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; margin: 2px 0 0; }
+    #total { font-size: 30px; font-weight: 800; letter-spacing: -.02em; margin: 2px 0 0; }
 
     /* 注湯リスト */
     .steps { display: flex; flex-direction: column; gap: 10px; }
-    .step {
-      display: flex; align-items: center; gap: 14px;
-      background: var(--card);
-      border-radius: 16px;
-      padding: 13px 14px;
-    }
-    .badge {
-      width: 40px; height: 40px; flex-shrink: 0;
-      border-radius: 999px;
-      color: #fff;
-      font-size: 18px; font-weight: 800;
-      display: flex; align-items: center; justify-content: center;
-    }
+    .step { display: flex; align-items: center; gap: 14px; background: var(--card); border-radius: 16px; padding: 13px 14px; }
+    .badge { width: 40px; height: 40px; flex-shrink: 0; border-radius: 999px; color: #fff; font-size: 18px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
     .step-mid { min-width: 0; }
     .step-time { font-size: 16px; font-weight: 800; white-space: nowrap; margin: 0; }
     .step-method { font-size: 13px; font-weight: 700; margin: 2px 0 0; }
@@ -156,103 +70,95 @@
     .step-amount { font-size: 20px; font-weight: 800; white-space: nowrap; margin: 0; }
     .step-pct { font-size: 14px; font-weight: 700; color: var(--subtext); }
     .step-cum { font-size: 14px; font-weight: 700; color: var(--subtext); white-space: nowrap; margin: 2px 0 0; }
+    .accent-coffee { color: var(--coffee); } .accent-pour { color: var(--pour); }
+    .bg-coffee { background: var(--coffee); } .bg-pour { background: var(--pour); }
 
-    .accent-coffee { color: var(--coffee); }
-    .accent-pour   { color: var(--pour); }
-    .bg-coffee { background: var(--coffee); }
-    .bg-pour   { background: var(--pour); }
+    /* 氷（アイスコーヒー実効レシオ） */
+    .ice-box { background: var(--card); border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .ice-box[hidden] { display: none; }
+    .ice-row { display: flex; align-items: center; gap: 10px; }
+    .ice-label { font-size: 14px; font-weight: 800; width: 46px; flex-shrink: 0; }
+    .ice-eff { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--divider); padding-top: 10px; font-size: 15px; font-weight: 800; }
+    .ice-eff .at-val { color: var(--coffee); }
+    .ice-hint { font-size: 12px; font-weight: 600; color: var(--subtext); margin: 0; }
 
-    /* ===== 抽出メモ（任意入力フォーム） ===== */
+    /* セクション見出し */
     .form-head { font-size: 16px; font-weight: 800; color: var(--subtext); margin: 0 0 12px 2px; }
-    .form {
-      background: var(--card);
-      border-radius: 20px;
-      padding: 18px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .field { display: flex; flex-direction: column; gap: 6px; }
-    .field > label { font-size: 13px; font-weight: 700; color: var(--subtext); }
-    .row2 { display: flex; gap: 12px; }
-    .row2 > .field { flex: 1; min-width: 0; }
-
-    .control {
-      width: 100%;
-      background: var(--bg);
-      border: 1px solid var(--divider);
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-size: 16px;          /* iOSのフォーカス時ズーム防止のため16px */
-      font-weight: 600;
-      color: var(--text);
-      font-family: inherit;
-      outline: none;
-    }
-    select.control { -webkit-appearance: none; appearance: none;
-      background-image: linear-gradient(45deg, transparent 50%, var(--subtext) 50%),
-                        linear-gradient(135deg, var(--subtext) 50%, transparent 50%);
-      background-position: calc(100% - 18px) 20px, calc(100% - 13px) 20px;
-      background-size: 5px 5px, 5px 5px;
-      background-repeat: no-repeat;
-      padding-right: 34px;
-    }
-    textarea.control { resize: vertical; min-height: 64px; }
-    .control::placeholder { color: var(--subtext); font-weight: 500; }
-
-    /* フレーバーチップ */
-    .flavor-count { font-weight: 800; color: var(--coffee); }
-    .flavor-wrap { display: flex; flex-direction: column; gap: 10px; }
-    .flavor-cat { font-size: 12px; font-weight: 800; color: var(--c, var(--subtext)); margin: 6px 0 0; letter-spacing: .02em; }
-    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-    .chip {
-      font-size: 14px; font-weight: 600;
-      padding: 7px 12px;
-      border-radius: 999px;
-      border: 1.5px solid var(--c, var(--divider));
-      background: var(--bg);
-      color: var(--text);
-      font-family: inherit;
-      cursor: pointer;
-      -webkit-user-select: none; user-select: none;
-      transition: background .12s ease, border-color .12s ease, color .12s ease, transform .08s ease;
-    }
-    .chip-emoji { margin-right: 5px; }
-    .chip:active { transform: scale(0.94); }
-    .chip.on {
-      background: var(--c, var(--coffee));
-      border-color: var(--c, var(--coffee));
-      color: #fff;
-    }
 
     /* 実測 */
     .actual-card { background: var(--card); border-radius: 20px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
     .actual-row { display: flex; align-items: center; gap: 10px; }
     .actual-label { font-size: 14px; font-weight: 800; width: 46px; flex-shrink: 0; }
-    .actual-input {
-      flex: 1; min-width: 0;
-      background: var(--bg); border: 1px solid var(--divider);
-      border-radius: 10px; padding: 10px 12px;
-      font-size: 16px; font-weight: 700; color: var(--text);
-      font-family: inherit; outline: none;
-    }
+    .actual-input { flex: 1; min-width: 0; background: var(--bg); border: 1px solid var(--divider); border-radius: 10px; padding: 10px 12px; font-size: 16px; font-weight: 700; color: var(--text); font-family: inherit; outline: none; }
     .actual-input::placeholder { color: var(--subtext); font-weight: 500; }
     .actual-unit { font-size: 14px; font-weight: 700; color: var(--subtext); }
     .actual-pct { width: 92px; text-align: right; font-size: 13px; font-weight: 800; color: var(--coffee); flex-shrink: 0; }
     .actual-total { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--divider); padding-top: 10px; font-size: 15px; font-weight: 800; }
     .actual-total .at-val { color: var(--coffee); }
 
-    /* 記録ボタン */
-    .save-btn {
-      width: 100%; background: var(--coffee); color: #fff;
-      border: none; border-radius: 16px; padding: 16px;
-      font-size: 17px; font-weight: 800; font-family: inherit;
-      cursor: pointer; transition: transform .08s ease, background .2s ease;
-    }
-    .save-btn:active { transform: scale(0.98); }
-    .save-btn.saved { background: #3aa35a; }
+    /* フォーム共通 */
+    .form { background: var(--card); border-radius: 20px; padding: 18px 16px; display: flex; flex-direction: column; gap: 16px; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field > label { font-size: 13px; font-weight: 700; color: var(--subtext); }
+    .row2 { display: flex; gap: 12px; }
+    .row2 > .field { flex: 1; min-width: 0; }
+    .control { width: 100%; background: var(--bg); border: 1px solid var(--divider); border-radius: 12px; padding: 12px 14px; font-size: 16px; font-weight: 600; color: var(--text); font-family: inherit; outline: none; }
+    select.control { -webkit-appearance: none; appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, var(--subtext) 50%), linear-gradient(135deg, var(--subtext) 50%, transparent 50%);
+      background-position: calc(100% - 18px) 20px, calc(100% - 13px) 20px; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; padding-right: 34px; }
+    textarea.control { resize: vertical; min-height: 64px; }
+    .control::placeholder { color: var(--subtext); font-weight: 500; }
 
-    /* 抽出ログ */
+    /* インライン操作（レシピ選択＋追加） */
+    .field-inline { display: flex; gap: 8px; }
+    .field-inline .control { flex: 1; }
+    .ghost-btn { background: var(--bg); border: 1px solid var(--divider); border-radius: 12px; padding: 10px 14px; font-size: 14px; font-weight: 700; color: var(--text); font-family: inherit; cursor: pointer; white-space: nowrap; transition: transform .08s; }
+    .ghost-btn.full { width: 100%; }
+    .ghost-btn:active { transform: scale(.97); }
+
+    /* レシピ追加フォーム */
+    .inline-form { background: var(--bg); border: 1px dashed var(--divider); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+    .inline-form[hidden] { display: none; }
+    .pour-hint { font-size: 11px; font-weight: 700; color: var(--subtext); margin: 0 0 0 2px; }
+    .pour-row { border: 1px solid var(--divider); border-radius: 10px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+    .pour-line { display: flex; gap: 6px; align-items: center; }
+    .pour-idx { width: 18px; flex-shrink: 0; text-align: center; font-size: 13px; font-weight: 800; }
+    .mini { background: var(--card); border: 1px solid var(--divider); border-radius: 8px; padding: 8px 6px; font-size: 15px; font-weight: 600; color: var(--text); font-family: inherit; outline: none; min-width: 0; }
+    .mini.pct { width: 52px; text-align: center; }
+    .mini.time { width: 60px; text-align: center; }
+    .mini.method { flex: 1; width: 100%; }
+    select.mini { -webkit-appearance: none; appearance: none; }
+    .row-del { width: 28px; height: 28px; flex-shrink: 0; border: none; background: var(--card); border-radius: 8px; color: #c0392b; font-size: 16px; font-weight: 800; cursor: pointer; }
+    .pour-sum { font-size: 12px; font-weight: 700; color: var(--subtext); }
+    .form-actions { display: flex; gap: 8px; }
+    .form-actions > * { flex: 1; }
+    .ice-toggle { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--text); }
+    .ice-toggle input { width: 18px; height: 18px; }
+    .ice-fields[hidden] { display: none; }
+    .range-inline { display: flex; align-items: center; gap: 6px; }
+    .range-inline .control { text-align: center; padding-left: 6px; padding-right: 6px; }
+    #recipeDeleteBtn { color: #c0392b; }
+    #recipeDeleteBtn[hidden] { display: none; }
+
+    /* チップ（フレーバー・ドリッパー） */
+    .flavor-count { font-weight: 800; color: var(--coffee); }
+    .flavor-wrap { display: flex; flex-direction: column; gap: 10px; }
+    .flavor-cat { font-size: 12px; font-weight: 800; color: var(--c, var(--subtext)); margin: 6px 0 0; letter-spacing: .02em; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip { font-size: 14px; font-weight: 600; padding: 7px 12px; border-radius: 999px; border: 1.5px solid var(--c, var(--divider)); background: var(--bg); color: var(--text); font-family: inherit; cursor: pointer; -webkit-user-select: none; user-select: none; transition: background .12s, border-color .12s, color .12s, transform .08s; }
+    .chip-emoji { margin-right: 5px; }
+    .chip:active { transform: scale(.94); }
+    .chip.on { background: var(--c, var(--coffee)); border-color: var(--c, var(--coffee)); color: #fff; }
+    .chip-add { display: flex; gap: 8px; margin-top: 8px; }
+    .chip-add .control { flex: 1; }
+
+    /* 記録ボタン */
+    .save-btn { width: 100%; background: var(--coffee); color: #fff; border: none; border-radius: 16px; padding: 16px; font-size: 17px; font-weight: 800; font-family: inherit; cursor: pointer; transition: transform .08s, background .2s; }
+    .save-btn:active { transform: scale(.98); }
+    .save-btn.saved { background: #3aa35a; }
+    .save-btn.small { padding: 11px; font-size: 15px; }
+
+    /* ログ */
     .logs { display: flex; flex-direction: column; gap: 10px; }
     .logs-empty { font-size: 13px; font-weight: 600; color: var(--subtext); margin: 0; }
     .log { background: var(--card); border-radius: 16px; padding: 14px; }
@@ -260,16 +166,11 @@
     .log-loc { font-size: 12px; font-weight: 800; color: #fff; background: var(--coffee); padding: 2px 10px; border-radius: 999px; }
     .log-date { font-size: 12px; font-weight: 700; color: var(--subtext); }
     .log-bean { font-size: 16px; font-weight: 800; margin: 8px 0 2px; }
-    .log-meta { font-size: 13px; font-weight: 600; color: var(--subtext); margin: 0; }
+    .log-meta { font-size: 13px; font-weight: 600; color: var(--subtext); margin: 2px 0 0; }
     .log-flavors { font-size: 12px; font-weight: 700; color: var(--coffee); margin: 6px 0 0; }
     .log-actions { display: flex; gap: 8px; margin-top: 10px; }
-    .log-btn {
-      flex: 1; background: var(--bg); border: 1px solid var(--divider);
-      border-radius: 10px; padding: 9px; font-size: 13px; font-weight: 700;
-      color: var(--text); font-family: inherit; cursor: pointer;
-      transition: transform .08s ease;
-    }
-    .log-btn:active { transform: scale(0.97); }
+    .log-btn { flex: 1; background: var(--bg); border: 1px solid var(--divider); border-radius: 10px; padding: 9px; font-size: 13px; font-weight: 700; color: var(--text); font-family: inherit; cursor: pointer; transition: transform .08s; }
+    .log-btn:active { transform: scale(.97); }
     .log-btn.del { color: #c0392b; }
   </style>
 </head>
@@ -283,202 +184,289 @@
       <button id="tabBtnLog" class="tab-btn" type="button">ログ <span id="tabLogCount"></span></button>
     </div>
 
+    <!-- ===== 抽出タブ ===== -->
     <div id="tab-brew" class="tab-pane">
 
-    <!-- 入力カード -->
-    <div class="card">
-      <div class="field-grid">
-        <div class="inp">
-          <p class="label">豆の量</p>
-          <div class="beans-row">
-            <input id="beans" type="text" inputmode="decimal" value="13">
-            <span class="unit">g</span>
+      <div class="card">
+        <div class="field-grid">
+          <div class="inp">
+            <p class="label">豆の量</p>
+            <div class="beans-row">
+              <input id="beans" type="text" inputmode="decimal" value="13">
+              <span class="unit">g</span>
+            </div>
           </div>
-        </div>
-
-        <div class="inp">
-          <p class="label">レシオ</p>
-          <div class="ratio-row">
-            <button id="ratioMinus" class="stepper" aria-label="減らす">−</button>
-            <span id="ratioLabel">16.5</span>
-            <button id="ratioPlus" class="stepper" aria-label="増やす">+</button>
+          <div class="inp">
+            <p class="label">レシオ</p>
+            <div class="ratio-row">
+              <button id="ratioMinus" class="stepper" aria-label="減らす">−</button>
+              <span id="ratioLabel">16.5</span>
+              <button id="ratioPlus" class="stepper" aria-label="増やす">+</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- 総湯量 -->
-    <div class="total">
-      <p class="cap">目標の総湯量</p>
-      <p id="total">214.5 g</p>
-    </div>
-
-    <!-- 注湯リスト -->
-    <div id="steps" class="steps"></div>
-
-    <!-- ▼ 実測（各投の到達Total湯量を入力 → 各投の増分・割合を表示） -->
-    <section aria-label="実測">
-      <p class="form-head">実測（各投の到達Total湯量）</p>
-      <div class="actual-card">
-        <div class="actual-row">
-          <span class="actual-label">1投目</span>
-          <input id="cum1" class="actual-input" type="text" inputmode="decimal">
-          <span class="actual-unit">g</span>
-          <span id="inc1" class="actual-pct">—</span>
-        </div>
-        <div class="actual-row">
-          <span class="actual-label">2投目</span>
-          <input id="cum2" class="actual-input" type="text" inputmode="decimal">
-          <span class="actual-unit">g</span>
-          <span id="inc2" class="actual-pct">—</span>
-        </div>
-        <div class="actual-row">
-          <span class="actual-label">3投目</span>
-          <input id="cum3" class="actual-input" type="text" inputmode="decimal">
-          <span class="actual-unit">g</span>
-          <span id="inc3" class="actual-pct">—</span>
-        </div>
-        <div class="actual-row">
-          <span class="actual-label">4投目</span>
-          <input id="cum4" class="actual-input" type="text" inputmode="decimal">
-          <span class="actual-unit">g</span>
-          <span id="inc4" class="actual-pct">—</span>
-        </div>
-        <div class="actual-total">
-          <span>実測 総湯量</span>
-          <span id="actualTotal" class="at-val">— g</span>
-        </div>
+      <div class="total">
+        <p class="cap">目標の総湯量</p>
+        <p id="total">214.5 g</p>
       </div>
-    </section>
 
-    <!-- ▼ 抽出メモ（任意入力） -->
-    <section aria-label="抽出メモ">
-      <p class="form-head">抽出メモ（任意）</p>
-      <div class="form">
-
-        <div class="row2">
-          <div class="field">
-            <label for="location">場所</label>
-            <select id="location" class="control">
-              <option>Office</option>
-              <option>Home</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="waterTemp">湯温（℃）</label>
-            <input id="waterTemp" class="control" type="text" inputmode="numeric" placeholder="90">
-          </div>
+      <!-- 氷（アイスコーヒー時のみ表示） -->
+      <div id="iceBox" class="ice-box" hidden>
+        <div class="ice-row">
+          <span class="ice-label">氷</span>
+          <input id="ice" class="actual-input" type="text" inputmode="numeric" placeholder="175">
+          <span class="actual-unit">g</span>
         </div>
-
-        <div class="row2">
-          <div class="field">
-            <label for="grinder">グラインダー</label>
-            <select id="grinder" class="control">
-              <option>NANO3</option>
-              <option>C2 MAX</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="clicks">クリック数</label>
-            <input id="clicks" class="control" type="text" inputmode="numeric" placeholder="22">
-          </div>
+        <div class="ice-eff">
+          <span>実効レシオ（氷込み）</span>
+          <span id="effRatio" class="at-val">—</span>
         </div>
-
-        <div class="field">
-          <label for="dripper">ドリッパー</label>
-          <select id="dripper" class="control">
-            <option>HARIO V60</option>
-            <option>HARIO V60 neo</option>
-            <option>HARIO switch</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="brewMethod">抽出メソッド</label>
-          <select id="brewMethod" class="control">
-            <option>THE COFFEE SHOP</option>
-            <option value="__other">その他（自由入力）</option>
-          </select>
-          <input id="brewMethodOther" class="control" type="text"
-                 placeholder="メソッド名を入力" style="display:none; margin-top:8px;">
-        </div>
-
-        <div class="field">
-          <label for="beanName">豆（銘柄）</label>
-          <input id="beanName" class="control" type="text" placeholder="例: GLOMBIA Gilbert">
-        </div>
-
-        <div class="field">
-          <label>Flavor Profile <span id="flavorCount" class="flavor-count"></span></label>
-          <div id="flavors" class="flavor-wrap"></div>
-        </div>
-
-        <div class="field">
-          <label for="memo">メモ</label>
-          <textarea id="memo" class="control" placeholder="例: だいぶ水っぽい。"></textarea>
-        </div>
-
+        <p class="ice-hint">氷込みの総量 <span id="iceTotal">—</span></p>
+        <p class="ice-hint" id="iceGuide"></p>
       </div>
-    </section>
 
-    <button id="saveBtn" class="save-btn">この抽出を記録</button>
+      <div id="steps" class="steps"></div>
+
+      <!-- 実測 -->
+      <section aria-label="実測">
+        <p class="form-head">実測（各投の到達Total湯量）</p>
+        <div class="actual-card">
+          <div id="actualRows"></div>
+          <div class="actual-total">
+            <span>実測 総湯量</span>
+            <span id="actualTotal" class="at-val">— g</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 抽出メモ -->
+      <section aria-label="抽出メモ">
+        <p class="form-head">抽出メモ（任意）</p>
+        <div class="form">
+          <div class="row2">
+            <div class="field">
+              <label for="location">場所</label>
+              <select id="location" class="control"><option>Office</option><option>Home</option></select>
+            </div>
+            <div class="field">
+              <label for="waterTemp">湯温（℃）</label>
+              <input id="waterTemp" class="control" type="text" inputmode="numeric" placeholder="90">
+            </div>
+          </div>
+
+          <div class="row2">
+            <div class="field">
+              <label for="grinder">グラインダー</label>
+              <select id="grinder" class="control"><option>NANO3</option><option>C2 MAX</option></select>
+            </div>
+            <div class="field">
+              <label for="clicks">クリック数</label>
+              <input id="clicks" class="control" type="text" inputmode="numeric" placeholder="22">
+            </div>
+          </div>
+
+          <!-- ドリッパー（複数選択＋追加） -->
+          <div class="field">
+            <label>ドリッパー <span id="dripperCount" class="flavor-count"></span></label>
+            <div id="drippers" class="chips"></div>
+            <div class="chip-add">
+              <input id="dripperNew" class="control" type="text" placeholder="ドリッパーを追加">
+              <button id="dripperAddBtn" type="button" class="ghost-btn">追加</button>
+            </div>
+          </div>
+
+          <!-- レシピ（選択／編集／新規追加） -->
+          <div class="field">
+            <label for="recipeSelect">抽出レシピ</label>
+            <div class="field-inline">
+              <select id="recipeSelect" class="control"></select>
+              <button id="recipeEditBtn" type="button" class="ghost-btn">編集</button>
+              <button id="recipeAddBtn" type="button" class="ghost-btn">＋ 新規</button>
+            </div>
+            <div id="recipeForm" class="inline-form" hidden>
+              <input id="recipeName" class="control" type="text" placeholder="レシピ名（例: My V60）">
+              <div class="row2">
+                <div class="field"><label for="recipeBeans">推奨 豆量(g)</label><input id="recipeBeans" class="control" type="text" inputmode="decimal" placeholder="任意"></div>
+                <div class="field"><label for="recipeRatio">推奨 レシオ</label><input id="recipeRatio" class="control" type="text" inputmode="decimal" placeholder="任意"></div>
+              </div>
+              <label class="ice-toggle"><input id="recipeIced" type="checkbox"> 🧊 アイス（氷の計算を使う）</label>
+              <div id="iceFields" class="ice-fields" hidden>
+                <div class="row2">
+                  <div class="field"><label for="recipeIceAmt">氷の初期量(g)</label><input id="recipeIceAmt" class="control" type="text" inputmode="numeric" placeholder="175"></div>
+                  <div class="field"><label>氷の目安 豆量×</label>
+                    <div class="range-inline">
+                      <input id="recipeIceMin" class="control" type="text" inputmode="decimal" placeholder="7.5">
+                      <span>〜</span>
+                      <input id="recipeIceMax" class="control" type="text" inputmode="decimal" placeholder="10">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p class="pour-hint">各投：％ ・ 開始 ・ 終了（m:ss）・ 注ぎ方　※最終投は自動で残り全量</p>
+              <div id="pourRows"></div>
+              <button id="addPourBtn" type="button" class="ghost-btn full">＋ 投を追加</button>
+              <div id="pourSum" class="pour-sum"></div>
+              <div class="form-actions">
+                <button id="recipeDeleteBtn" type="button" class="ghost-btn" hidden>削除</button>
+                <button id="recipeCancelBtn" type="button" class="ghost-btn">キャンセル</button>
+                <button id="recipeSaveBtn" type="button" class="save-btn small">保存</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="beanName">豆（銘柄）</label>
+            <input id="beanName" class="control" type="text" placeholder="例: GLOMBIA Gilbert">
+          </div>
+
+          <div class="field">
+            <label>Flavor Profile <span id="flavorCount" class="flavor-count"></span></label>
+            <div id="flavors" class="flavor-wrap"></div>
+          </div>
+
+          <div class="field">
+            <label for="memo">メモ</label>
+            <textarea id="memo" class="control" placeholder="例: だいぶ水っぽい。"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <button id="saveBtn" class="save-btn">この抽出を記録</button>
 
     </div><!-- /tab-brew -->
 
+    <!-- ===== ログタブ ===== -->
     <div id="tab-log" class="tab-pane" hidden>
-    <!-- ▼ 抽出ログ（端末内・localStorage） -->
-    <section aria-label="抽出ログ">
-      <p class="form-head">抽出ログ（端末内） <span id="logCount" class="flavor-count"></span></p>
-      <div id="logs" class="logs"></div>
-    </section>
+      <section aria-label="抽出ログ">
+        <p class="form-head">抽出ログ（端末内） <span id="logCount" class="flavor-count"></span></p>
+        <div id="logs" class="logs"></div>
+      </section>
     </div><!-- /tab-log -->
   </div>
 
   <script>
-    // ===== 計算ロジック（Swift版を完全再現）=====
-    const r1 = x => Math.round(x * 10) / 10;   // 小数点第1位で四捨五入
+    const r1 = x => Math.round(x * 10) / 10;
     const f1 = x => x.toFixed(1);
+    const gid = id => document.getElementById(id);
+    const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+    function loadJSON(key, def) { try { return JSON.parse(localStorage.getItem(key)) || def; } catch (e) { return def; } }
+    function storeJSON(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
 
-    const STEP_DEFS = [
-      { id: 1, time: '0\'00" 〜 0\'15"', method: 'サークルプア', center: false },
-      { id: 2, time: '0\'35" 〜 0\'50"', method: 'サークルプア', center: false },
-      { id: 3, time: '1\'10" 〜 1\'25"', method: 'サークルプア', center: false },
-      { id: 4, time: '1\'45" 〜 2\'10"', method: 'センタープア', center: true  },
-    ];
+    // 時間 秒⇄ラベル
+    function secLabel(sec) { sec = Math.max(0, Math.round(sec || 0)); return `${Math.floor(sec / 60)}'${String(sec % 60).padStart(2, '0')}"`; }
+    function colonTime(sec) { sec = Math.max(0, Math.round(sec || 0)); return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`; }
+    function parseTime(str) {
+      const t = (str || '').trim(); if (!t) return 0;
+      if (t.includes(':')) { const [m, s] = t.split(':'); return (parseInt(m, 10) || 0) * 60 + (parseInt(s, 10) || 0); }
+      return parseInt(t, 10) || 0;
+    }
 
+    // ===== レシピ =====
+    const RECIPE_KEY = 'brewRecipes_v1';
+    const BUILTIN_RECIPES = [{
+      id: 'coffeeshop', name: 'THE COFFEE SHOP', builtin: true,
+      pours: [
+        { pct: 16.7, start: 0,   end: 15,  method: 'サークルプア' },
+        { pct: 16.7, start: 35,  end: 50,  method: 'サークルプア' },
+        { pct: 20.0, start: 70,  end: 85,  method: 'サークルプア' },
+        { pct: 46.6, start: 105, end: 130, method: 'センタープア' }
+      ]
+    }, {
+      id: 'iced', name: '急冷式アイスコーヒー', builtin: true, iced: true,
+      defaults: { beans: 20, ratio: 10, ice: 175 },
+      iceRatio: { min: 7.5, max: 10 },
+      pours: [
+        { pct: 20, start: 0,   end: 45,  method: '蒸らし' },
+        { pct: 20, start: 40,  end: 50,  method: 'サークルプア' },
+        { pct: 20, start: 60,  end: 70,  method: 'サークルプア' },
+        { pct: 20, start: 80,  end: 90,  method: 'サークルプア' },
+        { pct: 20, start: 100, end: 110, method: 'サークルプア' }
+      ]
+    }];
+    let userRecipes = loadJSON(RECIPE_KEY, []);
+    const OVERRIDE_KEY = 'brewRecipeOverrides_v1';
+    let recipeOverrides = loadJSON(OVERRIDE_KEY, {});
+    let activeRecipeId = 'coffeeshop';
+    const isBuiltin = id => BUILTIN_RECIPES.some(r => r.id === id);
+    const allRecipes = () => BUILTIN_RECIPES.map(r => recipeOverrides[r.id] ? Object.assign({}, r, recipeOverrides[r.id], { id: r.id, builtin: true }) : r).concat(userRecipes);
+    const getActiveRecipe = () => allRecipes().find(r => r.id === activeRecipeId) || BUILTIN_RECIPES[0];
+
+    // ===== ドリッパー =====
+    const DRIPPER_KEY = 'brewDrippers_v1';
+    const BUILTIN_DRIPPERS = ['HARIO V60', 'HARIO V60 neo', 'HARIO switch'];
+    let userDrippers = loadJSON(DRIPPER_KEY, []);
+    const allDrippers = () => BUILTIN_DRIPPERS.concat(userDrippers);
+    const selectedDrippers = new Set();
+
+    // ===== フレーバー（Level B・SCA配色） =====
+    const FLAVORS = {
+      'Floral': { color: '#D5589A', items: [{ n: 'Floral', e: '🌸' }, { n: 'Jasmine', e: '🌼' }, { n: 'Black Tea', e: '🍵' }] },
+      'Fruity': { color: '#D33E4C', items: [{ n: 'Berry', e: '🫐' }, { n: 'Blueberry', e: '🫐' }, { n: 'Strawberry', e: '🍓' }, { n: 'Raisin', e: '🍇' }, { n: 'Citrus', e: '🍊' }, { n: 'Lemon', e: '🍋' }, { n: 'Orange', e: '🍊' }, { n: 'Apple', e: '🍎' }, { n: 'Cherry', e: '🍒' }, { n: 'Peach', e: '🍑' }] },
+      'Sour / Fermented': { color: '#B7A416', items: [{ n: 'Sour', e: '🍋' }, { n: 'Citric Acid', e: '🍊' }, { n: 'Malic Acid', e: '🍏' }, { n: 'Winey', e: '🍷' }, { n: 'Fermented', e: '🍶' }] },
+      'Green / Vegetative': { color: '#4C9A52', items: [{ n: 'Fresh', e: '🌿' }, { n: 'Herb-like', e: '🍃' }, { n: 'Vegetative', e: '🥬' }, { n: 'Hay-like', e: '🌾' }] },
+      'Roasted': { color: '#8E4234', items: [{ n: 'Smoky', e: '🔥' }, { n: 'Brown/Roast', e: '🍞' }, { n: 'Cereal', e: '🥣' }, { n: 'Malt', e: '🍺' }, { n: 'Tobacco', e: '🍂' }] },
+      'Spices': { color: '#C25336', items: [{ n: 'Cinnamon', e: '🫚' }, { n: 'Clove', e: '🌰' }, { n: 'Nutmeg', e: '🌰' }, { n: 'Pepper', e: '🌶️' }] },
+      'Nutty / Cocoa': { color: '#8C5A3C', items: [{ n: 'Nutty', e: '🥜' }, { n: 'Almond', e: '🥜' }, { n: 'Hazelnut', e: '🌰' }, { n: 'Chocolate', e: '🍫' }, { n: 'Dark Chocolate', e: '🍫' }] },
+      'Sweet': { color: '#E08A2A', items: [{ n: 'Caramelized', e: '🍮' }, { n: 'Honey', e: '🍯' }, { n: 'Maple Syrup', e: '🍁' }, { n: 'Brown Sugar', e: '🍪' }, { n: 'Vanilla', e: '🍦' }, { n: 'Sweet Aromatics', e: '🍬' }] },
+      'Other': { color: '#8A8F94', items: [{ n: 'Papery', e: '📄' }, { n: 'Woody', e: '🪵' }, { n: 'Medicinal', e: '💊' }] }
+    };
+    const selectedFlavors = new Set();
+
+    // ===== 状態 =====
     let ratio = 16.5;
-    let targetPours = [0, 0, 0, 0];   // 目標の各投量（実測欄プレースホルダー・保存時の既定値に使用）
+    let targetPours = [];
+    let targetCums = [];
+    let cumEls = [];
+    let incEls = [];
 
-    const beansEl = document.getElementById('beans');
-    const ratioEl = document.getElementById('ratioLabel');
-    const totalEl = document.getElementById('total');
-    const stepsEl = document.getElementById('steps');
+    const beansEl = gid('beans');
+    const ratioEl = gid('ratioLabel');
+    const totalEl = gid('total');
+    const stepsEl = gid('steps');
+    const actualRowsEl = gid('actualRows');
+    const actualTotalEl = gid('actualTotal');
+    const iceBox = gid('iceBox');
+    const iceEl = gid('ice');
+    const effRatioEl = gid('effRatio');
+    const iceTotalEl = gid('iceTotal');
+    const iceGuideEl = gid('iceGuide');
 
+    // ===== 計算・描画（レシピ駆動） =====
     function render() {
       const beans = parseFloat((beansEl.value || '').replace(',', '.')) || 0;
       const total = r1(beans * ratio);
+      const recipe = getActiveRecipe();
+      const pours = recipe.pours;
+      const n = pours.length;
 
-      const p1 = r1(total * 0.167);
-      const p2 = r1(total * 0.167);
-      const p3 = r1(total * 0.200);
-      const p4 = r1(total - (p1 + p2 + p3));   // 残り全部＝端数ズレ防止
+      // 各投の湯量（最終投は残り全量で端数吸収）
+      const amounts = [];
+      let acc = 0;
+      for (let i = 0; i < n - 1; i++) { const a = r1(total * pours[i].pct / 100); amounts.push(a); acc = r1(acc + a); }
+      amounts.push(r1(total - acc));
+      // 累計
+      const cums = []; let c = 0;
+      for (let i = 0; i < n; i++) { c = r1(c + amounts[i]); cums.push(c); }
 
-      const amounts = [p1, p2, p3, p4];
-      const cums    = [r1(p1), r1(p1 + p2), r1(p1 + p2 + p3), total];
+      targetPours = amounts.slice();
+      targetCums = cums.slice();
 
       ratioEl.textContent = f1(ratio);
       totalEl.textContent = f1(total) + ' g';
 
-      stepsEl.innerHTML = STEP_DEFS.map((s, i) => {
-        const accent  = s.center ? 'accent-pour' : 'accent-coffee';
-        const badgeBg = s.center ? 'bg-pour' : 'bg-coffee';
+      stepsEl.innerHTML = pours.map((p, i) => {
+        const center = p.method && p.method.indexOf('センター') >= 0;
+        const accent = center ? 'accent-pour' : 'accent-coffee';
+        const badgeBg = center ? 'bg-pour' : 'bg-coffee';
         const pct = total > 0 ? f1(amounts[i] / total * 100) : '0.0';
         return `
           <div class="step">
-            <div class="badge ${badgeBg}">${s.id}</div>
+            <div class="badge ${badgeBg}">${i + 1}</div>
             <div class="step-mid">
-              <p class="step-time">${s.time}</p>
-              <p class="step-method ${accent}">${s.method}</p>
+              <p class="step-time">${secLabel(p.start)} 〜 ${secLabel(p.end)}</p>
+              <p class="step-method ${accent}">${esc(p.method || '')}</p>
             </div>
             <div class="step-right">
               <p class="step-amount">${f1(amounts[i])}g <span class="step-pct">(${pct}%)</span></p>
@@ -487,103 +475,96 @@
           </div>`;
       }).join('');
 
-      // 実測欄（到達Total）のプレースホルダーを目標累計で更新し、再計算
-      targetPours = amounts.slice();
-      let s = 0;
-      for (let i = 0; i < 4; i++) {
-        s = r1(s + amounts[i]);
-        document.getElementById('cum' + (i + 1)).placeholder = f1(s);
-      }
+      ensureActualRows(n);
+      for (let i = 0; i < n; i++) cumEls[i].placeholder = f1(cums[i]);
       updateActual();
+
+      // アイスコーヒー: 氷込みの実効レシオ
+      if (recipe.iced) {
+        iceBox.hidden = false;
+        const ice = parseFloat((iceEl.value || '').replace(',', '.')) || 0;
+        const finalTotal = r1(total + ice);
+        iceTotalEl.textContent = f1(finalTotal) + ' g';
+        effRatioEl.textContent = beans > 0 ? `1 : ${f1(r1(finalTotal / beans))}` : '—';
+        if (recipe.iceRatio && beans > 0) {
+          const lo = Math.round(beans * recipe.iceRatio.min);
+          const hi = Math.round(beans * recipe.iceRatio.max);
+          iceGuideEl.textContent = `豆量に対する氷の目安: ${lo}〜${hi}g（豆量 ×${recipe.iceRatio.min}〜×${recipe.iceRatio.max}）`;
+        } else {
+          iceGuideEl.textContent = '';
+        }
+      } else {
+        iceBox.hidden = true;
+      }
     }
 
-    // ===== 実測（各投の到達Total湯量）→ 各投の増分・割合・実測総湯量 =====
-    const cumEls = [1, 2, 3, 4].map(i => document.getElementById('cum' + i));
-    const incEls = [1, 2, 3, 4].map(i => document.getElementById('inc' + i));
-    const actualTotalEl = document.getElementById('actualTotal');
-
-    // 目標の累計湯量
-    function targetCumulative() {
-      const c = []; let s = 0;
-      for (let i = 0; i < 4; i++) { s = r1(s + targetPours[i]); c.push(s); }
-      return c;
+    // ===== 実測（到達Total → 各投の増分） =====
+    function buildActualRows(n) {
+      actualRowsEl.innerHTML = Array.from({ length: n }, (_, i) => `
+        <div class="actual-row">
+          <span class="actual-label">${i + 1}投目</span>
+          <input id="cum${i + 1}" class="actual-input" type="text" inputmode="decimal">
+          <span class="actual-unit">g</span>
+          <span id="inc${i + 1}" class="actual-pct">—</span>
+        </div>`).join('');
+      cumEls = Array.from({ length: n }, (_, i) => gid('cum' + (i + 1)));
+      incEls = Array.from({ length: n }, (_, i) => gid('inc' + (i + 1)));
+      cumEls.forEach(el => el.addEventListener('input', () => { updateActual(); saveDraft(); }));
     }
-    // 入力があればその累計、空欄なら目標累計
+    function ensureActualRows(n) { if (cumEls.length !== n) buildActualRows(n); }
+
     function cumValues() {
-      const tc = targetCumulative();
       return cumEls.map((el, i) => {
         const v = parseFloat((el.value || '').replace(',', '.'));
-        return isNaN(v) ? tc[i] : r1(v);
+        return isNaN(v) ? (targetCums[i] || 0) : r1(v);
       });
     }
-    // 累計 → 各投の増分（その投で実際に注いだ量）
-    function incrementsOf(cums) {
-      return cums.map((c, i) => r1(c - (i === 0 ? 0 : cums[i - 1])));
-    }
+    function incrementsOf(cums) { return cums.map((c, i) => r1(c - (i === 0 ? 0 : cums[i - 1]))); }
 
     function updateActual() {
       const cums = cumValues();
       const incs = incrementsOf(cums);
-      const total = cums[3];
-      incEls.forEach((el, i) => {
-        el.textContent = total > 0 ? `+${f1(incs[i])}g (${Math.round(incs[i] / total * 100)}%)` : '—';
-      });
+      const total = cums[cums.length - 1] || 0;
+      incs.forEach((v, i) => { incEls[i].textContent = total > 0 ? `+${f1(v)}g (${Math.round(v / total * 100)}%)` : '—'; });
       actualTotalEl.textContent = total > 0 ? f1(total) + ' g' : '— g';
     }
 
-    cumEls.forEach(el => el.addEventListener('input', () => { updateActual(); saveDraft(); }));
+    // ===== レシオ・豆 =====
+    beansEl.addEventListener('input', () => { render(); saveDraft(); });
+    gid('ratioPlus').addEventListener('click', () => { ratio = Math.min(30, r1(ratio + 0.1)); render(); saveDraft(); });
+    gid('ratioMinus').addEventListener('click', () => { ratio = Math.max(1, r1(ratio - 0.1)); render(); saveDraft(); });
+    iceEl.addEventListener('input', () => { render(); saveDraft(); });
 
-    // ===== イベント =====
-    beansEl.addEventListener('input', render);
-    document.getElementById('ratioPlus').addEventListener('click', () => {
-      ratio = Math.min(30, r1(ratio + 0.1)); render(); saveDraft();
+    // ===== ドリッパー チップ =====
+    const drippersEl = gid('drippers');
+    const dripperCountEl = gid('dripperCount');
+    function buildDrippers() {
+      drippersEl.innerHTML = allDrippers().map(d =>
+        `<button type="button" class="chip${selectedDrippers.has(d) ? ' on' : ''}" data-drip="${esc(d)}">${esc(d)}</button>`).join('');
+      drippersEl.querySelectorAll('.chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const d = btn.dataset.drip;
+          if (selectedDrippers.has(d)) { selectedDrippers.delete(d); btn.classList.remove('on'); }
+          else { selectedDrippers.add(d); btn.classList.add('on'); }
+          dripperCountEl.textContent = selectedDrippers.size ? `（${selectedDrippers.size}）` : '';
+          saveDraft();
+        });
+      });
+      dripperCountEl.textContent = selectedDrippers.size ? `（${selectedDrippers.size}）` : '';
+    }
+    gid('dripperAddBtn').addEventListener('click', () => {
+      const inp = gid('dripperNew');
+      const name = inp.value.trim();
+      if (!name) return;
+      if (!allDrippers().includes(name)) { userDrippers.push(name); storeJSON(DRIPPER_KEY, userDrippers); }
+      selectedDrippers.add(name);
+      inp.value = '';
+      buildDrippers(); saveDraft();
     });
-    document.getElementById('ratioMinus').addEventListener('click', () => {
-      ratio = Math.max(1, r1(ratio - 0.1)); render(); saveDraft();
-    });
 
-    // 抽出メソッドで「その他」を選んだら自由入力欄を表示
-    const brewMethodEl = document.getElementById('brewMethod');
-    const brewMethodOtherEl = document.getElementById('brewMethodOther');
-    brewMethodEl.addEventListener('change', () => {
-      const isOther = brewMethodEl.value === '__other';
-      brewMethodOtherEl.style.display = isOther ? 'block' : 'none';
-      if (isOther) brewMethodOtherEl.focus();
-    });
-
-    // ===== Flavor Profile（Level B・複数選択・SCAホイール配色） =====
-    // 各カテゴリ: color = SCAフレーバーホイール準拠の色, items = {n:名称, e:食材絵文字}
-    const FLAVORS = {
-      'Floral':             { color: '#D5589A', items: [
-        { n: 'Floral', e: '🌸' }, { n: 'Jasmine', e: '🌼' }, { n: 'Black Tea', e: '🍵' } ] },
-      'Fruity':             { color: '#D33E4C', items: [
-        { n: 'Berry', e: '🫐' }, { n: 'Blueberry', e: '🫐' }, { n: 'Strawberry', e: '🍓' },
-        { n: 'Raisin', e: '🍇' }, { n: 'Citrus', e: '🍊' }, { n: 'Lemon', e: '🍋' },
-        { n: 'Orange', e: '🍊' }, { n: 'Apple', e: '🍎' }, { n: 'Cherry', e: '🍒' }, { n: 'Peach', e: '🍑' } ] },
-      'Sour / Fermented':   { color: '#B7A416', items: [
-        { n: 'Sour', e: '🍋' }, { n: 'Citric Acid', e: '🍊' }, { n: 'Malic Acid', e: '🍏' },
-        { n: 'Winey', e: '🍷' }, { n: 'Fermented', e: '🍶' } ] },
-      'Green / Vegetative': { color: '#4C9A52', items: [
-        { n: 'Fresh', e: '🌿' }, { n: 'Herb-like', e: '🍃' }, { n: 'Vegetative', e: '🥬' }, { n: 'Hay-like', e: '🌾' } ] },
-      'Roasted':            { color: '#8E4234', items: [
-        { n: 'Smoky', e: '🔥' }, { n: 'Brown/Roast', e: '🍞' }, { n: 'Cereal', e: '🥣' },
-        { n: 'Malt', e: '🍺' }, { n: 'Tobacco', e: '🍂' } ] },
-      'Spices':             { color: '#C25336', items: [
-        { n: 'Cinnamon', e: '🫚' }, { n: 'Clove', e: '🌰' }, { n: 'Nutmeg', e: '🌰' }, { n: 'Pepper', e: '🌶️' } ] },
-      'Nutty / Cocoa':      { color: '#8C5A3C', items: [
-        { n: 'Nutty', e: '🥜' }, { n: 'Almond', e: '🥜' }, { n: 'Hazelnut', e: '🌰' },
-        { n: 'Chocolate', e: '🍫' }, { n: 'Dark Chocolate', e: '🍫' } ] },
-      'Sweet':              { color: '#E08A2A', items: [
-        { n: 'Caramelized', e: '🍮' }, { n: 'Honey', e: '🍯' }, { n: 'Maple Syrup', e: '🍁' },
-        { n: 'Brown Sugar', e: '🍪' }, { n: 'Vanilla', e: '🍦' }, { n: 'Sweet Aromatics', e: '🍬' } ] },
-      'Other':              { color: '#8A8F94', items: [
-        { n: 'Papery', e: '📄' }, { n: 'Woody', e: '🪵' }, { n: 'Medicinal', e: '💊' } ] },
-    };
-
-    const selectedFlavors = new Set();   // 将来の保存・Notion送信で flavorTags として使用
-    const flavorsEl = document.getElementById('flavors');
-    const flavorCountEl = document.getElementById('flavorCount');
-
+    // ===== フレーバー チップ =====
+    const flavorsEl = gid('flavors');
+    const flavorCountEl = gid('flavorCount');
     function buildFlavors() {
       flavorsEl.innerHTML = Object.entries(FLAVORS).map(([cat, g]) => `
         <div class="flavor-group" style="--c:${g.color}">
@@ -592,7 +573,6 @@
             ${g.items.map(it => `<button type="button" class="chip${selectedFlavors.has(it.n) ? ' on' : ''}" data-flavor="${it.n}"><span class="chip-emoji">${it.e}</span>${it.n}</button>`).join('')}
           </div>
         </div>`).join('');
-
       flavorsEl.querySelectorAll('.chip').forEach(btn => {
         btn.addEventListener('click', () => {
           const f = btn.dataset.flavor;
@@ -602,50 +582,207 @@
           saveDraft();
         });
       });
-
       flavorCountEl.textContent = selectedFlavors.size ? `（${selectedFlavors.size}）` : '';
     }
-    // ===== 下書きの保存・復元（入力を漏れなく端末に残す） =====
+
+    // ===== レシピ 選択・追加 =====
+    const recipeSelect = gid('recipeSelect');
+    const recipeForm = gid('recipeForm');
+    const pourRowsEl = gid('pourRows');
+    const recipeIcedEl = gid('recipeIced');
+    const iceFieldsEl = gid('iceFields');
+    let editingRecipeId = null;
+
+    function populateRecipeSelect() {
+      recipeSelect.innerHTML = allRecipes().map(r => `<option value="${esc(r.id)}">${esc(r.name)}</option>`).join('');
+      recipeSelect.value = activeRecipeId;
+    }
+    function applyRecipeDefaults(recipe) {
+      if (!recipe || !recipe.defaults) return;
+      const d = recipe.defaults;
+      if (d.beans != null) beansEl.value = d.beans;
+      if (d.ratio != null) ratio = d.ratio;
+      if (d.ice != null) iceEl.value = d.ice;
+    }
+    recipeSelect.addEventListener('change', () => {
+      activeRecipeId = recipeSelect.value;
+      applyRecipeDefaults(getActiveRecipe());
+      buildActualRows(getActiveRecipe().pours.length);
+      render(); saveDraft();
+    });
+
+    function pourRowHTML(d) {
+      d = d || {};
+      const center = (d.method || '').indexOf('センター') >= 0;
+      return `
+        <div class="pour-row">
+          <div class="pour-line">
+            <span class="pour-idx"></span>
+            <input class="mini pct" type="text" inputmode="decimal" placeholder="%" value="${d.pct != null ? d.pct : ''}">
+            <input class="mini time start" type="text" inputmode="numeric" placeholder="0:00" value="${d.start != null ? colonTime(d.start) : ''}">
+            <input class="mini time end" type="text" inputmode="numeric" placeholder="0:15" value="${d.end != null ? colonTime(d.end) : ''}">
+            <button type="button" class="row-del" aria-label="削除">×</button>
+          </div>
+          <select class="mini method">
+            <option${center ? '' : ' selected'}>サークルプア</option>
+            <option${center ? ' selected' : ''}>センタープア</option>
+          </select>
+        </div>`;
+    }
+    function reindexPours() {
+      pourRowsEl.querySelectorAll('.pour-row').forEach((row, i) => { row.querySelector('.pour-idx').textContent = (i + 1); });
+      updatePourSum();
+    }
+    function updatePourSum() {
+      let sum = 0;
+      pourRowsEl.querySelectorAll('.pct').forEach(inp => { const v = parseFloat(inp.value); if (!isNaN(v)) sum += v; });
+      gid('pourSum').textContent = `入力した割合の合計: ${r1(sum)}%（最終投は自動で残り）`;
+    }
+    function addPourRow(d) {
+      pourRowsEl.insertAdjacentHTML('beforeend', pourRowHTML(d));
+      const row = pourRowsEl.lastElementChild;
+      row.querySelector('.row-del').addEventListener('click', () => { row.remove(); reindexPours(); });
+      row.querySelector('.pct').addEventListener('input', updatePourSum);
+      reindexPours();
+    }
+    gid('addPourBtn').addEventListener('click', () => addPourRow());
+
+    function fillRecipeForm(recipe) {
+      gid('recipeName').value = recipe.name || '';
+      gid('recipeBeans').value = (recipe.defaults && recipe.defaults.beans != null) ? recipe.defaults.beans : '';
+      gid('recipeRatio').value = (recipe.defaults && recipe.defaults.ratio != null) ? recipe.defaults.ratio : '';
+      recipeIcedEl.checked = !!recipe.iced;
+      iceFieldsEl.hidden = !recipe.iced;
+      gid('recipeIceAmt').value = (recipe.defaults && recipe.defaults.ice != null) ? recipe.defaults.ice : '';
+      gid('recipeIceMin').value = (recipe.iceRatio && recipe.iceRatio.min != null) ? recipe.iceRatio.min : '';
+      gid('recipeIceMax').value = (recipe.iceRatio && recipe.iceRatio.max != null) ? recipe.iceRatio.max : '';
+      pourRowsEl.innerHTML = '';
+      const ps = recipe.pours || [];
+      if (ps.length) ps.forEach(p => addPourRow(p)); else for (let i = 0; i < 4; i++) addPourRow();
+    }
+    function resetRecipeForm() {
+      gid('recipeName').value = '';
+      gid('recipeBeans').value = ''; gid('recipeRatio').value = '';
+      recipeIcedEl.checked = false; iceFieldsEl.hidden = true;
+      gid('recipeIceAmt').value = ''; gid('recipeIceMin').value = ''; gid('recipeIceMax').value = '';
+      pourRowsEl.innerHTML = '';
+      for (let i = 0; i < 4; i++) addPourRow();
+    }
+    recipeIcedEl.addEventListener('change', () => { iceFieldsEl.hidden = !recipeIcedEl.checked; });
+
+    gid('recipeAddBtn').addEventListener('click', () => {
+      if (!recipeForm.hidden && editingRecipeId === null) { recipeForm.hidden = true; return; }
+      editingRecipeId = null;
+      gid('recipeDeleteBtn').hidden = true;
+      resetRecipeForm();
+      recipeForm.hidden = false;
+    });
+    gid('recipeEditBtn').addEventListener('click', () => {
+      if (!recipeForm.hidden && editingRecipeId === activeRecipeId) { recipeForm.hidden = true; return; }
+      editingRecipeId = activeRecipeId;
+      fillRecipeForm(getActiveRecipe());
+      gid('recipeDeleteBtn').hidden = isBuiltin(activeRecipeId); // 内蔵レシピは削除不可（リネーム・編集は可）
+      recipeForm.hidden = false;
+    });
+    gid('recipeCancelBtn').addEventListener('click', () => { recipeForm.hidden = true; });
+
+    function readRecipeForm() {
+      const name = gid('recipeName').value.trim();
+      const pours = [];
+      pourRowsEl.querySelectorAll('.pour-row').forEach(row => {
+        const pct = parseFloat(row.querySelector('.pct').value);
+        if (isNaN(pct)) return;
+        pours.push({ pct: r1(pct), start: parseTime(row.querySelector('.start').value), end: parseTime(row.querySelector('.end').value), method: row.querySelector('.method').value });
+      });
+      const defaults = {};
+      const rb = parseFloat(gid('recipeBeans').value); if (!isNaN(rb)) defaults.beans = rb;
+      const rr = parseFloat(gid('recipeRatio').value); if (!isNaN(rr)) defaults.ratio = rr;
+      const iced = recipeIcedEl.checked;
+      let iceRatio = null;
+      if (iced) {
+        const ia = parseFloat(gid('recipeIceAmt').value); if (!isNaN(ia)) defaults.ice = ia;
+        const mn = parseFloat(gid('recipeIceMin').value), mx = parseFloat(gid('recipeIceMax').value);
+        if (!isNaN(mn) && !isNaN(mx)) iceRatio = { min: mn, max: mx };
+      }
+      return { name, pours, iced, defaults, iceRatio };
+    }
+
+    gid('recipeSaveBtn').addEventListener('click', () => {
+      const data = readRecipeForm();
+      if (!data.name) { alert('レシピ名を入力してください'); return; }
+      if (data.pours.length < 1) { alert('少なくとも1投の割合を入力してください'); return; }
+      const body = { name: data.name, iced: data.iced, defaults: data.defaults, pours: data.pours };
+      if (data.iceRatio) body.iceRatio = data.iceRatio;
+
+      if (editingRecipeId) {
+        if (isBuiltin(editingRecipeId)) {
+          recipeOverrides[editingRecipeId] = body;
+          storeJSON(OVERRIDE_KEY, recipeOverrides);
+        } else {
+          const idx = userRecipes.findIndex(x => x.id === editingRecipeId);
+          if (idx >= 0) userRecipes[idx] = Object.assign({ id: editingRecipeId, builtin: false }, body);
+          storeJSON(RECIPE_KEY, userRecipes);
+        }
+        activeRecipeId = editingRecipeId;
+      } else {
+        const r = Object.assign({ id: 'r' + Date.now(), builtin: false }, body);
+        userRecipes.push(r);
+        storeJSON(RECIPE_KEY, userRecipes);
+        activeRecipeId = r.id;
+      }
+      editingRecipeId = null;
+      populateRecipeSelect();
+      recipeForm.hidden = true;
+      applyRecipeDefaults(getActiveRecipe());
+      buildActualRows(getActiveRecipe().pours.length);
+      render(); saveDraft();
+    });
+
+    gid('recipeDeleteBtn').addEventListener('click', () => {
+      if (!editingRecipeId || isBuiltin(editingRecipeId)) return;
+      if (!confirm('このレシピを削除しますか？')) return;
+      userRecipes = userRecipes.filter(x => x.id !== editingRecipeId);
+      storeJSON(RECIPE_KEY, userRecipes);
+      if (activeRecipeId === editingRecipeId) activeRecipeId = 'coffeeshop';
+      editingRecipeId = null;
+      populateRecipeSelect();
+      recipeForm.hidden = true;
+      applyRecipeDefaults(getActiveRecipe());
+      buildActualRows(getActiveRecipe().pours.length);
+      render(); saveDraft();
+    });
+
+    // ===== 下書き（入力を漏れなく保存・復元） =====
     const DRAFT_KEY = 'brewDraft_v1';
-    const gid = id => document.getElementById(id);
+    let draftCum = null;
     function saveDraft() {
       const d = {
-        beans: beansEl.value, ratio,
+        beans: beansEl.value, ratio, recipeId: activeRecipeId, ice: iceEl.value,
         cum: cumEls.map(el => el.value),
         location: gid('location').value, waterTemp: gid('waterTemp').value,
         grinder: gid('grinder').value, clicks: gid('clicks').value,
-        dripper: gid('dripper').value, brewMethod: brewMethodEl.value,
-        brewMethodOther: brewMethodOtherEl.value, beanName: gid('beanName').value,
+        drippers: [...selectedDrippers], beanName: gid('beanName').value,
         memo: gid('memo').value, flavors: [...selectedFlavors]
       };
-      try { localStorage.setItem(DRAFT_KEY, JSON.stringify(d)); } catch (e) {}
+      storeJSON(DRAFT_KEY, d);
     }
     function setVal(id, v) { if (v != null && v !== '') gid(id).value = v; }
     function restoreDraft() {
-      let d; try { d = JSON.parse(localStorage.getItem(DRAFT_KEY)); } catch (e) {}
+      const d = loadJSON(DRAFT_KEY, null);
       if (!d) return;
       if (d.beans != null && d.beans !== '') beansEl.value = d.beans;
       if (typeof d.ratio === 'number') ratio = d.ratio;
-      if (Array.isArray(d.cum)) d.cum.forEach((v, i) => { if (cumEls[i] && v) cumEls[i].value = v; });
+      if (d.recipeId && allRecipes().some(r => r.id === d.recipeId)) activeRecipeId = d.recipeId;
+      setVal('ice', d.ice);
       setVal('location', d.location); setVal('waterTemp', d.waterTemp);
       setVal('grinder', d.grinder); setVal('clicks', d.clicks);
-      setVal('dripper', d.dripper);
-      if (d.brewMethod) brewMethodEl.value = d.brewMethod;
-      if (d.brewMethodOther) brewMethodOtherEl.value = d.brewMethodOther;
-      if (brewMethodEl.value === '__other') brewMethodOtherEl.style.display = 'block';
       setVal('beanName', d.beanName); setVal('memo', d.memo);
-      if (Array.isArray(d.flavors)) d.flavors.forEach(f => selectedFlavors.add(f));
+      if (Array.isArray(d.drippers)) d.drippers.forEach(x => selectedDrippers.add(x));
+      if (Array.isArray(d.flavors)) d.flavors.forEach(x => selectedFlavors.add(x));
+      if (Array.isArray(d.cum)) draftCum = d.cum;
     }
-    restoreDraft();
 
-    buildFlavors();
-
-    // 入力の変化を漏れなく下書き保存（input/change はバブリングする）
-    const wrapEl = document.querySelector('.wrap');
-    wrapEl.addEventListener('input', saveDraft);
-    wrapEl.addEventListener('change', saveDraft);
-
-    // ===== タブ切り替え（抽出 / ログ） =====
+    // ===== タブ =====
     const tabBtnBrew = gid('tabBtnBrew'), tabBtnLog = gid('tabBtnLog');
     const tabBrew = gid('tab-brew'), tabLog = gid('tab-log');
     function showTab(which) {
@@ -657,161 +794,127 @@
     tabBtnBrew.addEventListener('click', () => showTab('brew'));
     tabBtnLog.addEventListener('click', () => showTab('log'));
 
-    // ===== 抽出ログ（localStorage） =====
+    // ===== ログ（localStorage） =====
     const LOG_KEY = 'brewLogs_v1';
-    const saveBtn = document.getElementById('saveBtn');
-    const logsEl = document.getElementById('logs');
-    const logCountEl = document.getElementById('logCount');
-
-    function loadLogs() {
-      try { return JSON.parse(localStorage.getItem(LOG_KEY)) || []; }
-      catch (e) { return []; }
-    }
-    function storeLogs(arr) {
-      try { localStorage.setItem(LOG_KEY, JSON.stringify(arr)); } catch (e) {}
-    }
+    const saveBtn = gid('saveBtn');
+    const logsEl = gid('logs');
+    const logCountEl = gid('logCount');
+    function loadLogs() { return loadJSON(LOG_KEY, []); }
+    function storeLogs(arr) { storeJSON(LOG_KEY, arr); }
     function pad2(n) { return String(n).padStart(2, '0'); }
-    function fmtDate(d) {
-      return `${d.getFullYear()}/${pad2(d.getMonth() + 1)}/${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
-    }
-    function numOrNull(id) {
-      const v = parseFloat((document.getElementById(id).value || '').replace(',', '.'));
-      return isNaN(v) ? null : v;
-    }
+    function fmtDate(d) { return `${d.getFullYear()}/${pad2(d.getMonth() + 1)}/${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`; }
+    function numOrNull(id) { const v = parseFloat((gid(id).value || '').replace(',', '.')); return isNaN(v) ? null : v; }
 
-    // 1件分の保存オブジェクト（Notion転記用の確定フォーマット）
     function collectEntry() {
       const beans = parseFloat((beansEl.value || '').replace(',', '.')) || 0;
       const total = r1(beans * ratio);
       const cums = cumValues();
       const pours = incrementsOf(cums);
-      const actualTotal = cums[3];
-      const method = brewMethodEl.value === '__other'
-        ? (brewMethodOtherEl.value.trim() || 'その他')
-        : brewMethodEl.value;
+      const recipe = getActiveRecipe();
+      const ice = parseFloat((iceEl.value || '').replace(',', '.'));
+      const iceVal = isNaN(ice) ? null : ice;
       const now = new Date();
       return {
-        id: now.getTime(),
-        brewedAt: now.toISOString(),
-        brewedAtLabel: fmtDate(now),
-        location: document.getElementById('location').value,
-        beanName: document.getElementById('beanName').value.trim(),
-        beansAmount: beans,
-        ratio: ratio,
-        totalWater: total,
-        actualTotal: actualTotal,
-        waterTemp: numOrNull('waterTemp'),
-        grinder: document.getElementById('grinder').value,
-        clicks: numOrNull('clicks'),
-        dripper: document.getElementById('dripper').value,
-        brewMethod: method,
-        pour1: pours[0], pour2: pours[1], pour3: pours[2], pour4: pours[3],
-        cum1: cums[0], cum2: cums[1], cum3: cums[2], cum4: cums[3],
-        flavorTags: [...selectedFlavors],
-        memo: document.getElementById('memo').value.trim()
+        id: now.getTime(), brewedAt: now.toISOString(), brewedAtLabel: fmtDate(now),
+        location: gid('location').value, beanName: gid('beanName').value.trim(),
+        beansAmount: beans, ratio, totalWater: total,
+        actualTotal: cums[cums.length - 1] || 0,
+        iced: !!recipe.iced, ice: iceVal,
+        effectiveRatio: (recipe.iced && beans > 0 && iceVal != null) ? r1((total + iceVal) / beans) : null,
+        waterTemp: numOrNull('waterTemp'), grinder: gid('grinder').value, clicks: numOrNull('clicks'),
+        drippers: [...selectedDrippers], recipeId: recipe.id, brewMethod: recipe.name,
+        pours, cums, flavorTags: [...selectedFlavors], memo: gid('memo').value.trim()
       };
     }
 
-    // Notion転記用のコピーテキスト
     function logToText(e) {
-      const lines = [
+      const drip = (e.drippers && e.drippers.length) ? e.drippers.join(', ') : (e.dripper || '');
+      const pours = e.pours || [], cums = e.cums || [];
+      return [
         `日時: ${e.brewedAtLabel}`,
         `場所: ${e.location}`,
         `豆: ${e.beanName || ''}`,
         `豆量: ${e.beansAmount}g / レシオ: ${e.ratio} / 目標総湯量: ${e.totalWater}g / 実測総湯量: ${e.actualTotal}g`,
         `グラインダー: ${e.grinder}${e.clicks != null ? ` (${e.clicks} clicks)` : ''}`,
-        `ドリッパー: ${e.dripper}`,
-        `メソッド: ${e.brewMethod}`,
+        `ドリッパー: ${drip}`,
+        `レシピ: ${e.brewMethod}`,
+        (e.iced && e.ice != null) ? `氷: ${e.ice}g / 実効レシオ(氷込み): 1:${e.effectiveRatio}` : null,
         e.waterTemp != null ? `湯温: ${e.waterTemp}℃` : null,
-        `各投: 1)${e.pour1}g 2)${e.pour2}g 3)${e.pour3}g 4)${e.pour4}g`,
-        e.cum4 != null ? `累計Total: ${e.cum1} / ${e.cum2} / ${e.cum3} / ${e.cum4} g` : null,
-        e.flavorTags.length ? `Flavor: ${e.flavorTags.join(', ')}` : null,
+        pours.length ? `各投: ${pours.map((p, i) => `${i + 1})${p}g`).join(' ')}` : null,
+        cums.length ? `累計Total: ${cums.join(' / ')} g` : null,
+        (e.flavorTags && e.flavorTags.length) ? `Flavor: ${e.flavorTags.join(', ')}` : null,
         e.memo ? `メモ: ${e.memo}` : null
-      ];
-      return lines.filter(Boolean).join('\n');
+      ].filter(Boolean).join('\n');
     }
 
     function copyText(text, onDone) {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(onDone, () => fallbackCopy(text, onDone));
-      } else {
-        fallbackCopy(text, onDone);
-      }
+      } else { fallbackCopy(text, onDone); }
     }
     function fallbackCopy(text, onDone) {
       const ta = document.createElement('textarea');
       ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
       document.body.appendChild(ta); ta.focus(); ta.select();
       try { document.execCommand('copy'); } catch (e) {}
-      document.body.removeChild(ta);
-      if (onDone) onDone();
+      document.body.removeChild(ta); if (onDone) onDone();
     }
 
     function renderLogs() {
       const logs = loadLogs();
       logCountEl.textContent = logs.length ? `（${logs.length}）` : '';
-      const tlc = document.getElementById('tabLogCount');
-      if (tlc) tlc.textContent = logs.length ? `(${logs.length})` : '';
-      if (!logs.length) {
-        logsEl.innerHTML = '<p class="logs-empty">まだ記録がありません。淹れ終わったら「記録」を押してください。</p>';
-        return;
-      }
-      logsEl.innerHTML = logs.map(e => `
+      gid('tabLogCount').textContent = logs.length ? `(${logs.length})` : '';
+      if (!logs.length) { logsEl.innerHTML = '<p class="logs-empty">まだ記録がありません。淹れ終わったら「記録」を押してください。</p>'; return; }
+      logsEl.innerHTML = logs.map(e => {
+        const drip = (e.drippers && e.drippers.length) ? e.drippers.join(' / ') : (e.dripper || '');
+        return `
         <div class="log">
           <div class="log-head">
-            <span class="log-loc">${e.location}</span>
+            <span class="log-loc">${esc(e.location)}</span>
             <span class="log-date">${e.brewedAtLabel}</span>
           </div>
-          <p class="log-bean">${e.beanName || '（豆 未入力）'}</p>
+          <p class="log-bean">${esc(e.beanName) || '（豆 未入力）'}</p>
           <p class="log-meta">${e.beansAmount}g ・ レシオ ${e.ratio} ・ 実測 ${e.actualTotal}g</p>
-          ${e.flavorTags.length ? `<p class="log-flavors">${e.flavorTags.join(', ')}</p>` : ''}
+          <p class="log-meta">${esc(e.brewMethod || '')}${drip ? ' ・ ' + esc(drip) : ''}</p>
+          ${(e.flavorTags && e.flavorTags.length) ? `<p class="log-flavors">${esc(e.flavorTags.join(', '))}</p>` : ''}
           <div class="log-actions">
             <button class="log-btn" data-copy="${e.id}">コピー</button>
             <button class="log-btn del" data-del="${e.id}">削除</button>
           </div>
-        </div>`).join('');
-
-      logsEl.querySelectorAll('[data-copy]').forEach(b => {
-        b.addEventListener('click', () => {
-          const e = loadLogs().find(x => x.id === Number(b.dataset.copy));
-          if (!e) return;
-          copyText(logToText(e), () => {
-            const orig = b.textContent;
-            b.textContent = 'コピー済';
-            setTimeout(() => { b.textContent = orig; }, 1200);
-          });
-        });
-      });
-      logsEl.querySelectorAll('[data-del]').forEach(b => {
-        b.addEventListener('click', () => {
-          if (!confirm('このログを削除しますか？')) return;
-          storeLogs(loadLogs().filter(x => x.id !== Number(b.dataset.del)));
-          renderLogs();
-        });
-      });
+        </div>`;
+      }).join('');
+      logsEl.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', () => {
+        const e = loadLogs().find(x => x.id === Number(b.dataset.copy)); if (!e) return;
+        copyText(logToText(e), () => { const o = b.textContent; b.textContent = 'コピー済'; setTimeout(() => { b.textContent = o; }, 1200); });
+      }));
+      logsEl.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', () => {
+        if (!confirm('このログを削除しますか？')) return;
+        storeLogs(loadLogs().filter(x => x.id !== Number(b.dataset.del))); renderLogs();
+      }));
     }
 
     saveBtn.addEventListener('click', () => {
-      const logs = loadLogs();
-      logs.unshift(collectEntry());
-      storeLogs(logs);
-      renderLogs();
-      const orig = saveBtn.textContent;
-      saveBtn.textContent = '記録しました ✓';
-      saveBtn.classList.add('saved');
-      setTimeout(() => { saveBtn.textContent = orig; saveBtn.classList.remove('saved'); }, 1400);
+      const logs = loadLogs(); logs.unshift(collectEntry()); storeLogs(logs); renderLogs();
+      const o = saveBtn.textContent; saveBtn.textContent = '記録しました ✓'; saveBtn.classList.add('saved');
+      setTimeout(() => { saveBtn.textContent = o; saveBtn.classList.remove('saved'); }, 1400);
     });
 
+    // ===== 初期化 =====
+    restoreDraft();
+    populateRecipeSelect();
+    buildDrippers();
+    buildFlavors();
     render();
+    if (draftCum) { draftCum.forEach((v, i) => { if (cumEls[i] && v) cumEls[i].value = v; }); updateActual(); }
     renderLogs();
-  </script>
 
-  <script>
-    // オフライン動作用：Service Worker登録（https配信時のみ有効）
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
-      });
+    // 入力の変化を漏れなく下書き保存
+    const wrapEl = document.querySelector('.wrap');
+    wrapEl.addEventListener('input', saveDraft);
+    wrapEl.addEventListener('change', saveDraft);
+
+    if ('serviceWorker' in navigator && navigator.serviceWorker) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
     }
   </script>
 </body>
