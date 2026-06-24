@@ -288,8 +288,9 @@
             <div id="recipeForm" class="inline-form" hidden>
               <input id="recipeName" class="control" type="text" placeholder="レシピ名（例: My V60）">
               <div class="row2">
-                <div class="field"><label for="recipeBeans">推奨 豆量(g)</label><input id="recipeBeans" class="control" type="text" inputmode="decimal" placeholder="任意"></div>
-                <div class="field"><label for="recipeRatio">推奨 レシオ</label><input id="recipeRatio" class="control" type="text" inputmode="decimal" placeholder="任意"></div>
+                <div class="field"><label for="recipeBeans">豆量(g)</label><input id="recipeBeans" class="control" type="text" inputmode="decimal" placeholder="任意"></div>
+                <div class="field"><label for="recipeRatio">レシオ</label><input id="recipeRatio" class="control" type="text" inputmode="decimal" placeholder="任意"></div>
+                <div class="field"><label for="recipeTemp">湯温(℃)</label><input id="recipeTemp" class="control" type="text" inputmode="numeric" placeholder="任意"></div>
               </div>
               <label class="ice-toggle"><input id="recipeIced" type="checkbox"> 🧊 アイス（氷の計算を使う）</label>
               <div id="iceFields" class="ice-fields" hidden>
@@ -367,6 +368,7 @@
     const RECIPE_KEY = 'brewRecipes_v1';
     const BUILTIN_RECIPES = [{
       id: 'coffeeshop', name: 'THE COFFEE SHOP', builtin: true,
+      defaults: { beans: 13, ratio: 16.5 },
       pours: [
         { pct: 16.7, start: 0,   end: 15,  method: 'サークルプア' },
         { pct: 16.7, start: 35,  end: 50,  method: 'サークルプア' },
@@ -375,7 +377,7 @@
       ]
     }, {
       id: 'iced', name: '急冷式アイスコーヒー', builtin: true, iced: true,
-      defaults: { beans: 20, ratio: 10, ice: 175 },
+      defaults: { beans: 20, ratio: 10, ice: 175, waterTemp: 90 },
       iceRatio: { min: 7.5, max: 10 },
       pours: [
         { pct: 20, start: 0,   end: 45,  method: '蒸らし' },
@@ -383,6 +385,15 @@
         { pct: 20, start: 60,  end: 70,  method: 'サークルプア' },
         { pct: 20, start: 80,  end: 90,  method: 'サークルプア' },
         { pct: 20, start: 100, end: 110, method: 'サークルプア' }
+      ]
+    }, {
+      id: 'iced_light', name: '浅煎りアイス（後入れ急冷）', builtin: true, iced: true,
+      defaults: { beans: 18, ratio: 8.9, ice: 60, waterTemp: 88 },
+      iceRatio: { min: 3, max: 3.5 },
+      pours: [
+        { pct: 25,   start: 0,  end: 40, method: '蒸らし' },
+        { pct: 37.5, start: 40, end: 58, method: 'サークルプア' },
+        { pct: 37.5, start: 70, end: 90, method: 'サークルプア' }
       ]
     }];
     let userRecipes = loadJSON(RECIPE_KEY, []);
@@ -603,6 +614,7 @@
       if (d.beans != null) beansEl.value = d.beans;
       if (d.ratio != null) ratio = d.ratio;
       if (d.ice != null) iceEl.value = d.ice;
+      if (d.waterTemp != null) gid('waterTemp').value = d.waterTemp;
     }
     recipeSelect.addEventListener('change', () => {
       activeRecipeId = recipeSelect.value;
@@ -651,6 +663,7 @@
       gid('recipeName').value = recipe.name || '';
       gid('recipeBeans').value = (recipe.defaults && recipe.defaults.beans != null) ? recipe.defaults.beans : '';
       gid('recipeRatio').value = (recipe.defaults && recipe.defaults.ratio != null) ? recipe.defaults.ratio : '';
+      gid('recipeTemp').value = (recipe.defaults && recipe.defaults.waterTemp != null) ? recipe.defaults.waterTemp : '';
       recipeIcedEl.checked = !!recipe.iced;
       iceFieldsEl.hidden = !recipe.iced;
       gid('recipeIceAmt').value = (recipe.defaults && recipe.defaults.ice != null) ? recipe.defaults.ice : '';
@@ -662,7 +675,7 @@
     }
     function resetRecipeForm() {
       gid('recipeName').value = '';
-      gid('recipeBeans').value = ''; gid('recipeRatio').value = '';
+      gid('recipeBeans').value = ''; gid('recipeRatio').value = ''; gid('recipeTemp').value = '';
       recipeIcedEl.checked = false; iceFieldsEl.hidden = true;
       gid('recipeIceAmt').value = ''; gid('recipeIceMin').value = ''; gid('recipeIceMax').value = '';
       pourRowsEl.innerHTML = '';
@@ -697,6 +710,7 @@
       const defaults = {};
       const rb = parseFloat(gid('recipeBeans').value); if (!isNaN(rb)) defaults.beans = rb;
       const rr = parseFloat(gid('recipeRatio').value); if (!isNaN(rr)) defaults.ratio = rr;
+      const rt = parseFloat(gid('recipeTemp').value); if (!isNaN(rt)) defaults.waterTemp = rt;
       const iced = recipeIcedEl.checked;
       let iceRatio = null;
       if (iced) {
